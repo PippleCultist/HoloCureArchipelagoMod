@@ -408,6 +408,19 @@ RValue& DoAchievementBefore(CInstance* Self, CInstance* Other, RValue& ReturnVal
 	if (achievementsMap.m_Kind != VALUE_UNDEFINED)
 	{
 		RValue curAchievement = g_ModuleInterface->CallBuiltin("ds_map_find_value", { achievementsMap, *Args[0] });
+		if (curAchievement.m_Kind == VALUE_UNDEFINED)
+		{
+			callbackManagerInterfacePtr->LogToFile(MODNAME, "ERROR: achievement %s is named incorrectly. Attempting to fix", Args[0]->ToCString());
+			if (Args[0]->ToString().compare("payday") == 0)
+			{
+				curAchievement = g_ModuleInterface->CallBuiltin("ds_map_find_value", { achievementsMap, "payDay" });
+			}
+			else
+			{
+				callbackManagerInterfacePtr->LogToFile(MODNAME, "ERROR: couldn't fix achievement name");
+				return ReturnValue;
+			}
+		}
 		locationIndexEnum locationNumber = static_cast<locationIndexEnum>(getInstanceVariable(curAchievement, GML_achievementNumber).ToInt32() + 1);
 
 		loggingCallback(std::format("Obtained achievement: {}", locationToNameMap[locationNumber]));
