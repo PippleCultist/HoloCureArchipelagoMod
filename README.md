@@ -1,7 +1,7 @@
-# Holocure Archipelago Mod
+# HoloCure Archipelago Mod
 [![Github All Releases](https://img.shields.io/github/downloads/PippleCultist/HoloCureArchipelagoMod/HoloCureArchipelagoMod.dll)](https://github.com/PippleCultist/HoloCureArchipelagoMod/releases)
 
-A Holocure mod that integrates Archipelago with the game. Archipelago is a randomizer that lets you play by yourself via localhost or randomized with other people's different games through archipelago.gg.
+A HoloCure mod that integrates Archipelago with the game. Archipelago is a randomizer that lets you play by yourself via localhost or randomized with other people's different games through archipelago.gg.
 
 ## AI Disclosure
 I have not used AI to write any code or contribute to this project. I cannot confirm if the dependencies that this project uses have any AI usage or not. If you wish to contribute to this project, please refrain from using AI.
