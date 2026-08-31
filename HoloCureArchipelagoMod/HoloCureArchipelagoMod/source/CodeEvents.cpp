@@ -144,38 +144,6 @@ std::unordered_map<std::string, itemIndexEnum> shopIDToIndexMap
 
 void TitleScreenCreateBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
-	/*
-	{
-		RValue map = g_ModuleInterface->CallBuiltin("variable_global_get", { "achievementsMap" });
-		RValue arr = g_ModuleInterface->CallBuiltin("ds_map_values_to_array", { map });
-		int len = g_ModuleInterface->CallBuiltin("array_length", { arr }).ToInt32();
-		for (int i = 0; i < len; i++)
-		{
-			RValue achievementNumber = getInstanceVariable(arr[i], GML_achievementNumber);
-			RValue achievementID = getInstanceVariable(arr[i], GML_id);
-			RValue achievementDesc = getInstanceVariable(arr[i], GML_achievementDescription);
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s %s %s", achievementNumber.ToCString(), achievementID.ToCString(), achievementDesc.ToCString());
-		}
-	}
-	{
-		RValue map = g_ModuleInterface->CallBuiltin("variable_global_get", { "attacksLibrary" });
-		RValue arr = g_ModuleInterface->CallBuiltin("ds_map_values_to_array", { map });
-		int len = g_ModuleInterface->CallBuiltin("array_length", { arr }).ToInt32();
-		for (int i = 0; i < len; i++)
-		{
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", arr[i].ToCString());
-		}
-	}
-	{
-		RValue map = g_ModuleInterface->CallBuiltin("variable_global_get", { "itemsLibrary" });
-		RValue arr = g_ModuleInterface->CallBuiltin("ds_map_values_to_array", { map });
-		int len = g_ModuleInterface->CallBuiltin("array_length", { arr }).ToInt32();
-		for (int i = 0; i < len; i++)
-		{
-			callbackManagerInterfacePtr->LogToFile(MODNAME, "%s", arr[i].ToCString());
-		}
-	}
-	*/
 }
 
 void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
