@@ -7,6 +7,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 #include "ScriptFunctions.h"
+#include "CodeEvents.h"
 #include <unordered_set>
 #include <deque>
 
@@ -15,6 +16,7 @@ std::unordered_map<itemIndexEnum, std::string> itemToNameMap
 	{ itemIndexEnum_HoloHouse, "HoloHouse" },
 	{ itemIndexEnum_HoloCoin, "HoloCoin" },
 	{ itemIndexEnum_ProgressiveStage, "Progressive Stage" },
+	{ itemIndexEnum_ProgressiveStageHard, "Progressive Stage (HARD)" },
 	{ itemIndexEnum_TimeStage1, "Time Stage 1" },
 	{ itemIndexEnum_AmeliaWatson, "Amelia Watson" },
 	{ itemIndexEnum_GawrGura, "Gawr Gura" },
@@ -220,7 +222,7 @@ std::unordered_map<itemIndexEnum, int> curObtainedItems;
 std::deque<itemIndexEnum> itemIndexReceiveQueue;
 
 std::string apIP;
-std::string apGame;
+std::string apGame = "HoloCure";
 std::string apPlayerName;
 std::string apPassword;
 
@@ -233,6 +235,8 @@ bool isGrindyChecksEnabled = false;
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
 extern std::unordered_set<locationIndexEnum> obtainedLocationSet;
+extern std::unordered_map<locationIndexEnum, AP_NetworkItem> locationItemHintMap;
+
 
 // Helper functions
 
@@ -322,38 +326,56 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
+void locationInfoCallback(std::vector<AP_NetworkItem> locationInfoReceive)
+{
+	locationItemHintMap.clear();
+	for (auto curNetworkItem : locationInfoReceive)
+	{
+		locationItemHintMap[static_cast<locationIndexEnum>(curNetworkItem.location)] = curNetworkItem;
+	}
+}
+
 void handleLogMenu()
 {
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(400, 720), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Log");
 
-//	if (ImGui::BeginTable("LogTable", 1))
+	ImGuiListClipper clipper;
+	clipper.Begin(static_cast<int>(apLogList.size()));
+
+	while (clipper.Step())
 	{
-		ImGuiListClipper clipper;
-		clipper.Begin(apLogList.size());
-
-		while (clipper.Step())
+		for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
 		{
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-			{
-//				ImGui::TableNextRow();
-				ImGui::Text(apLogList[row].c_str());
-			}
+			ImGui::Text(apLogList[row].c_str());
 		}
-
-//		ImGui::EndTable();
 	}
 
 	ImGui::End();
 }
 
+bool showPassword = false;
+bool hasInvalidField = false;
+
 void handleConnectMenu()
 {
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 800, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Connect");
 
-	ImGui::InputText("IP", &apIP);
-	ImGui::InputText("Game", &apGame);
+	ImGui::InputTextWithHint("IP", "localhost:38281", &apIP);
 	ImGui::InputText("Player Name", &apPlayerName);
-	ImGui::InputText("Password", &apPassword);
+	ImGui::InputText("Password", &apPassword, showPassword ? ImGuiInputTextFlags_None : ImGuiInputTextFlags_Password);
+	ImGui::Checkbox("Show Password", &showPassword);
+
+	if (hasInvalidField)
+	{
+		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Please input a non empty IP/Player Name");
+	}
+
 	if (isConnected || isConnecting)
 	{
 		ImGui::BeginDisabled();
@@ -361,7 +383,15 @@ void handleConnectMenu()
 
 	if (ImGui::Button("Connect"))
 	{
-		initArchipelago();
+		if (apIP.empty() || apPlayerName.empty())
+		{
+			hasInvalidField = true;
+		}
+		else
+		{
+			hasInvalidField = false;
+			initArchipelago();
+		}
 	}
 
 	if (isConnected || isConnecting)
@@ -392,18 +422,25 @@ void sendAPCheck(CInstance* Self, locationIndexEnum sendLocationIndex)
 }
 
 bool isForceCheck = false;
+bool isLocationHint = false;
 
 void handleCheckMenu(CInstance* Self)
 {
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 400, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(400, 720), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Checks");
 //	ImGuiListClipper clipper;
 //	clipper.Begin(locationToNameMap.size());
 
 	ImGui::Checkbox("Toggle Force Check", &isForceCheck);
-	ImGui::Text("%d / %d", obtainedLocationSet.size(), locationToNameMap.size());
+	ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
+	// TODO: Improve this when there's more options
+	ImGui::Text("%d / %d", obtainedLocationSet.size(), isGrindyChecksEnabled ? locationToNameMap.size() : locationToNameMap.size() - grindyLocations.size());
 
-	if (ImGui::BeginTable("ChecksTable", 1, ImGuiTableFlags_ScrollY))
+	if (ImGui::BeginTable("ChecksTable", isLocationHint ? 2 : 1, ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX))
 	{
+		// TODO: Fix this UI
 		int curRow = 0;
 		for (auto& locationPair : locationToNameMap)
 		{
@@ -412,7 +449,8 @@ void handleCheckMenu(CInstance* Self)
 				continue;
 			}
 			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
+			//ImGui::TableNextColumn();
+			ImGui::TableSetColumnIndex(0);
 			if (isForceCheck)
 			{
 				if (ImGui::Button(std::format("Send##{}", curRow).c_str()))
@@ -431,6 +469,14 @@ void handleCheckMenu(CInstance* Self)
 				textColor = ImVec4(1, 0, 0, 1);
 			}
 			ImGui::TextColored(textColor, "%s", locationPair.second.c_str());
+
+			if (isLocationHint)
+			{
+			//	ImGui::TableSetColumnIndex(1);
+				//ImGui::TableNextColumn();
+				ImGui::Text("%s %s", locationItemHintMap[locationPair.first].playerName.c_str(), locationItemHintMap[locationPair.first].itemName.c_str());
+			}
+
 			curRow++;
 		}
 		ImGui::EndTable();
@@ -629,12 +675,14 @@ void slotDataGrindyChecksCallback(int slotData)
 
 void initArchipelago()
 {
+	AP_Shutdown();
 	callbackManagerInterfacePtr->LogToFile(MODNAME, "Init AP");
 	AP_Init(apIP.c_str(), apGame.c_str(), apPlayerName.c_str(), apPassword.c_str());
 
 	AP_SetItemClearCallback(itemClearCallback);
 	AP_SetItemRecvCallback(itemReceiveCallback);
 	AP_SetLocationCheckedCallback(locationCheckedCallback);
+	AP_SetLocationInfoCallback(locationInfoCallback);
 
 	AP_RegisterSlotDataIntCallback("grindy_checks", slotDataGrindyChecksCallback);
 

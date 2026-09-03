@@ -10,6 +10,7 @@ enum itemIndexEnum
 	itemIndexEnum_HoloHouse = 1,
 	itemIndexEnum_HoloCoin,
 	itemIndexEnum_ProgressiveStage,
+	itemIndexEnum_ProgressiveStageHard,
 	itemIndexEnum_TimeStage1,
 	itemIndexEnum_AmeliaWatson = 100,
 	itemIndexEnum_GawrGura,

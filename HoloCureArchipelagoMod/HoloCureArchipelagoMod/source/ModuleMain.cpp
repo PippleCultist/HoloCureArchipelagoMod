@@ -258,5 +258,14 @@ EXPORTED AurieStatus ModuleInitialize(
 	IN const fs::path& ModulePath
 )
 {
+	// TODO: Somehow check if the AP server has changed or not to prompt to delete and reset the save
+	// TODO: Add goal in holohouse with new checks
+	// TODO: Add checks for unique mob kills
+	// TODO: Find a way to integrate gacha
+	// TODO: Set buying out shop as a goal
+	// TODO: Consider setting an option in the gui to increase the in game timer speed
+	// TODO: Add location scouts
+	// TODO: See if the holocure client can be integrated with archipelago directly
+
 	return moduleInitStatus;
 }

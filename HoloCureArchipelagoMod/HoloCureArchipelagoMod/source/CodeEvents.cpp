@@ -15,8 +15,13 @@ extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::unordered_map<itemIndexEnum, int> curObtainedItems;
 extern std::deque<itemIndexEnum> itemIndexReceiveQueue;
 extern std::unordered_set<locationIndexEnum> obtainedLocationSet;
+extern std::map<locationIndexEnum, std::string> locationToNameMap;
+extern std::unordered_set<locationIndexEnum> grindyLocations;
 
 extern bool newConnectSendChecks;
+extern bool isGrindyChecksEnabled;
+
+std::unordered_map<locationIndexEnum, AP_NetworkItem> locationItemHintMap;
 
 std::unordered_map<itemIndexEnum, std::string> weaponToIDMap
 {
@@ -146,13 +151,39 @@ void TitleScreenCreateBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVa
 {
 }
 
+bool hasSentGoal = false;
+int locationHintTimer = 300;
+
 void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
 	bool hasUpdated = false;
 	CInstance* Self = std::get<0>(Args);
 
-	if (AP_GetConnectionStatus() == AP_ConnectionStatus::Connected)
+	if (AP_GetConnectionStatus() == AP_ConnectionStatus::Authenticated)
 	{
+		if (locationItemHintMap.empty())
+		{
+			locationHintTimer++;
+			if (locationHintTimer >= 300)
+			{
+				std::set<int64_t> locations;
+
+				for (auto& locationPair : locationToNameMap)
+				{
+					if (!isGrindyChecksEnabled && grindyLocations.contains(locationPair.first))
+					{
+						continue;
+					}
+					locations.insert(locationPair.first);
+				}
+
+				callbackManagerInterfacePtr->LogToFile(MODNAME, "Send location scout");
+
+				AP_SendLocationScouts(locations, 0);
+				locationHintTimer = 0;
+			}
+		}
+		
 		if (newConnectSendChecks)
 		{
 			RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
@@ -168,11 +199,15 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 			}
 			newConnectSendChecks = false;
 		}
-	}
 
-	if (obtainedLocationSet.contains(locationIndexEnum_DefeatStage1Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage2Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage3Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage4Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage5Boss))
-	{
-		AP_StoryComplete();
+		if (obtainedLocationSet.contains(locationIndexEnum_DefeatStage1Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage2Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage3Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage4Boss) && obtainedLocationSet.contains(locationIndexEnum_DefeatStage5Boss))
+		{
+			if (!hasSentGoal)
+			{
+				AP_StoryComplete();
+				hasSentGoal = true;
+			}
+		}
 	}
 
 	// TODO: Only do a few at a time to prevent freezing
@@ -221,7 +256,7 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 					int holoCoins = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "holoCoins" }).ToInt32();
 					g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "holoCoins", holoCoins + 1000 });
 				}
-				else if (itemID == itemIndexEnum_ProgressiveStage)
+				else if (itemID == itemIndexEnum_ProgressiveStage || itemID == itemIndexEnum_ProgressiveStageHard)
 				{
 					RValue** args = new RValue * [3];
 					RValue unlockedStages = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "unlockedStages" });
@@ -231,47 +266,57 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 					{
 						case 1:
 						{
-							stageName = "STAGE 2";
+							if (itemID == itemIndexEnum_ProgressiveStage)
+							{
+								stageName = "STAGE 2";
+							}
+							else
+							{
+								stageName = "STAGE 1 (HARD)";
+							}
 							break;
 						}
 						case 2:
 						{
-							stageName = "STAGE 3";
+							if (itemID == itemIndexEnum_ProgressiveStage)
+							{
+								stageName = "STAGE 3";
+							}
+							else
+							{
+								stageName = "STAGE 2 (HARD)";
+							}
 							break;
 						}
 						case 3:
 						{
-							stageName = "STAGE 4";
+							if (itemID == itemIndexEnum_ProgressiveStage)
+							{
+								stageName = "STAGE 4";
+							}
+							else
+							{
+								stageName = "STAGE 3 (HARD)";
+							}
 							break;
 						}
 						case 4:
 						{
-							stageName = "STAGE 5";
-							break;
-						}
-						case 5:
-						{
-							stageName = "STAGE 1 (HARD)";
-							break;
-						}
-						case 6:
-						{
-							stageName = "STAGE 2 (HARD)";
-							break;
-						}
-						case 7:
-						{
-							stageName = "STAGE 3 (HARD)";
-							break;
-						}
-						case 8:
-						{
-							stageName = "STAGE 4 (HARD)";
+							if (itemID == itemIndexEnum_ProgressiveStage)
+							{
+								stageName = "STAGE 5";
+							}
+							else
+							{
+								stageName = "STAGE 4 (HARD)";
+							}
 							break;
 						}
 						default:
 						{
-							callbackManagerInterfacePtr->LogToFile(MODNAME, "Unhandled progressive stage amount %d", curObtainedItems[itemID]);
+							int holoCoins = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "holoCoins" }).ToInt32();
+							g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "holoCoins", holoCoins + 1000 });
+//							callbackManagerInterfacePtr->LogToFile(MODNAME, "Unhandled progressive stage amount %d", curObtainedItems[itemID]);
 						}
 					}
 
