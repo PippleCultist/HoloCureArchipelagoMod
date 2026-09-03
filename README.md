@@ -3,6 +3,8 @@
 
 A HoloCure mod that integrates Archipelago with the game. Archipelago is a randomizer that lets you play by yourself via localhost or randomized with other people's different games through archipelago.gg.
 
+Currently in Alpha, so there may be potential bugs/crashes that occur.
+
 ## AI Disclosure
 I have not used AI to write any code or contribute to this project. I cannot confirm if the dependencies that this project uses have any AI usage or not. If you wish to contribute to this project, please refrain from using AI.
 
