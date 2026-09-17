@@ -232,6 +232,8 @@ bool newConnectSendChecks = false;
 
 bool isGrindyChecksEnabled = false;
 
+std::unordered_set<locationIndexEnum> serverObtainedLocationSet;
+
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
 extern std::unordered_set<locationIndexEnum> obtainedLocationSet;
@@ -464,6 +466,10 @@ void handleCheckMenu(CInstance* Self)
 			{
 				textColor = ImVec4(0, 1, 0, 1);
 			}
+			else if (serverObtainedLocationSet.contains(locationPair.first))
+			{
+				textColor = ImVec4(1, .65, 0, 1);
+			}
 			else
 			{
 				textColor = ImVec4(1, 0, 0, 1);
@@ -553,8 +559,8 @@ void itemReceiveCallback(int64_t itemID, bool isNotify)
 void locationCheckedCallback(int64_t locationID)
 {
 	locationIndexEnum locationIndexID = static_cast<locationIndexEnum>(locationID);
-	obtainedLocationSet.insert(locationIndexID);
-	loggingCallback(std::format("{} checked", locationToNameMap[locationIndexID].c_str()));
+	serverObtainedLocationSet.insert(locationIndexID);
+	loggingCallback(std::format("{} server checked", locationToNameMap[locationIndexID].c_str()));
 }
 
 void loadModImguiMenu()
