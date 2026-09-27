@@ -3,7 +3,7 @@
 
 A HoloCure mod that integrates Archipelago with the game. Archipelago is a randomizer that lets you play by yourself via localhost or randomized with other people's different games through archipelago.gg.
 
-Currently in Alpha, so there may be potential bugs/crashes that occur.
+Currently in Beta, so there may be potential bugs/crashes that occur.
 
 ## AI Disclosure
 I have not used AI to write any code or contribute to this project. I cannot confirm if the dependencies that this project uses have any AI usage or not. If you wish to contribute to this project, please refrain from using AI.
@@ -40,13 +40,15 @@ From here, connecting to your HoloCure slot is easy. There are two scenarios.
 
 ### Webhost Room
 
-If your room is hosted on a WebHost (e.g. [archipelago.gg](https://archipelago.gg)),
-you should get the link and port (e.g. archipelago.gg:38281).
-Then you launch HoloCure, and a separate window named HoloCure Archipelago Mod will open. 
-There will be a window in the GUI named Connect, and you should put the address in the field named IP. For Player Name, you put the assigned player name that was set in the YAML file. Password is only required if the apworld is set to require one.
+If your room is hosted on a WebHost (e.g. [archipelago.gg](https://archipelago.gg)), 
+you should be able to simply click on your name in the player list.  
+This will open the Archipelago Launcher
+and ask you whether you want to connect with the Text Client or the HoloCure Client.  
+Choose "HoloCure Client". Then launch the HoloCure exe, and it should automatically fill in the connect information. 
 
 ### Locally hosted room
 
 If your room does not have a WebHost room page available, you can launch HoloCure manually.  
 
-Usually the address will be in the format of localhost:port number. Copy this into the IP field. The rest of the steps are the same as the Webhost Room.
+Usually the address will be in the format of localhost:port number. Copy this into the IP field.
+For Player Name, you put the assigned player name that was set in the YAML file. Password is only required if the apworld is set to require one.
