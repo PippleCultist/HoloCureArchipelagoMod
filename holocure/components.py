@@ -1,5 +1,6 @@
 from worlds.LauncherComponents import Component, Type, components, launch
 
+import os
 
 # The most common type of component is a client, but there are other components, such as sprite/palette adjusters.
 # (Note: Some worlds distribute their clients as separate, standalone programs,
@@ -10,26 +11,36 @@ from worlds.LauncherComponents import Component, Type, components, launch
 # However, let's quickly talk about how you register a component to be launchable from the Archipelago Launcher.
 # First, you'll need a function that takes a list of args (e.g. from the command line) that launches your component.
 def run_client(*args: str) -> None:
-    # Ideally, you should lazily import your component code so that it doesn't have to be loaded until necessary.
-    from .client.launch import launch_ap_quest_client
+	from CommonClient import get_base_parser, handle_url_arg
+	# Ideally, you should lazily import your component code so that it doesn't have to be loaded until necessary.
 
-    # Also, if your component has its own lifecycle, like if it is its own window that can be interacted with,
-    # you should use the LauncherComponents.launch helper (which itself calls launch_subprocess).
-    # This will create a subprocess for your component, launching it in a separate window from the Archipelago Launcher.
-    launch(launch_ap_quest_client, name="APQuest Client", args=args)
+	# Also, if your component has its own lifecycle, like if it is its own window that can be interacted with,
+	# you should use the LauncherComponents.launch helper (which itself calls launch_subprocess).
+	# This will create a subprocess for your component, launching it in a separate window from the Archipelago Launcher.
+	parser = get_base_parser()
+	parser.add_argument("--name", default=None, help="Slot Name to connect as.")
+	parser.add_argument("url", nargs="?", help="Archipelago connection url")
+
+	launch_args = handle_url_arg(parser.parse_args(args))
+	with open(os.getenv('LOCALAPPDATA') + "/HoloCure/ArchipelagoConnect.txt", "w") as f:
+		f.write(launch_args.name + "\n")
+		f.write(launch_args.password + "\n")
+		f.write(launch_args.connect[launch_args.connect.rfind('@') + 1:] + "\n")
+
+
 
 
 # You then add this function as a component by appending a Component instance to LauncherComponents.components.
 # Now, it will show up in the Launcher with its display name,
 # and when the user clicks on the "Open" button, your function will be run.
 components.append(
-    Component(
-        "APQuest Client",
-        func=run_client,
-        game_name="APQuest",
-        component_type=Type.CLIENT,
-        supports_uri=True,
-    )
+	Component(
+		"HoloCure Client",
+		func=run_client,
+		game_name="HoloCure",
+		component_type=Type.CLIENT,
+		supports_uri=True,
+	)
 )
 
 # There are two optional parameters that are worth drawing attention to here: "game_name" and "supports_uri".

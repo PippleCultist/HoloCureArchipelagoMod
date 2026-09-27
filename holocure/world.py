@@ -92,5 +92,5 @@ class HoloCureWorld(World):
 	def fill_slot_data(self) -> Mapping[str, Any]:
 		# If you need access to the player's chosen options on the client side, there is a helper for that.
 		return self.options.as_dict(
-			"grindy_checks"
+			"end_goal", "grindy_checks", "enable_stage", "enable_holo_house_randomization", "enable_unique_enemy_checks", "hololive_member_whitelist", "hololive_member_goal", "achievement_goal"
 		)

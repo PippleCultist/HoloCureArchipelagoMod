@@ -157,7 +157,41 @@ void initHooks()
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_Confirmed@gml_Object_obj_Shop_Create_0");
 		return;
 	}
-	
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_InitRods@gml_Object_obj_Bloop_Create_0", nullptr, InitRodsBloopCreateAfter, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_InitRods@gml_Object_obj_Bloop_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_InitSoilAndSeeds@gml_Object_obj_Nemu_Create_0", nullptr, InitSoilAndSeedsNemuCreateAfter, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_InitSoilAndSeeds@gml_Object_obj_Nemu_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_inventory_add", nullptr, InventoryAddAfter, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_inventory_add");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_Confirm@gml_Object_obj_CookingPot_Create_0", ConfirmCookingPotCreateBefore, nullptr, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_Confirm@gml_Object_obj_CookingPot_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_Confirm@gml_Object_obj_Ckia_Create_0", nullptr, ConfirmCkiaCreateAfter, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_Confirm@gml_Object_obj_Ckia_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_CheckLeveling@gml_Object_obj_ForgeGather_Create_0", nullptr, CheckLevelingForgeGatherCreateAfter, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_CheckLeveling@gml_Object_obj_ForgeGather_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_Die@gml_Object_obj_Enemy_Create_0", DieEnemyCreateBefore, nullptr, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_Die@gml_Object_obj_Enemy_Create_0");
+		return;
+	}
 
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_TitleScreen_Create_0", TitleScreenCreateBefore, nullptr)))
 	{
@@ -182,6 +216,11 @@ void initHooks()
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_Shop_Create_0", nullptr, ShopCreateAfter)))
 	{
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_Shop_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_PlayerManager_Step_0", PlayerManagerStepBefore, nullptr)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_PlayerManager_Step_0");
 		return;
 	}
 
@@ -258,14 +297,11 @@ EXPORTED AurieStatus ModuleInitialize(
 	IN const fs::path& ModulePath
 )
 {
-	// TODO: Somehow check if the AP server has changed or not to prompt to delete and reset the save
-	// TODO: Add goal in holohouse with new checks
-	// TODO: Add checks for unique mob kills
-	// TODO: Find a way to integrate gacha
-	// TODO: Set buying out shop as a goal
-	// TODO: Consider setting an option in the gui to increase the in game timer speed
-	// TODO: Add location scouts
 	// TODO: See if the holocure client can be integrated with archipelago directly
+
+	// TODO: Add collab/super collab as checks
+	// TODO: Find a way to integrate gacha
+	// TODO: Clean up rules
 
 	return moduleInitStatus;
 }

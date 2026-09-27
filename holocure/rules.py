@@ -10,8 +10,27 @@ from .locations import location_data
 if TYPE_CHECKING:
 	from .world import HoloCureWorld
 
+from .options import EndGoal
+
 #HAS_KEY = Has("Key")  # Hmm, what could this be? A little foreshadowing perhaps? :) You'll find out if you keep reading!
 
+def is_stage_enabled(world: HoloCureWorld) -> bool:
+	return world.options.enable_stage or not world.options.enable_holo_house_randomization or world.options.end_goal == EndGoal.option_stage or world.options.end_goal == EndGoal.option_stage_hard or world.options.end_goal == EndGoal.option_stage_member
+
+def is_holo_house_enabled(world: HoloCureWorld) -> bool:
+	return world.options.enable_holo_house_randomization or not world.options.enable_stage
+
+def is_in_hololive_member_whitelist(world: HoloCureWorld, name_list: list[str]) -> bool:
+	if not name_list:
+		return True
+	if not world.options.hololive_member_whitelist.value:
+		return True
+	if "All" in name_list:
+		return len(world.options.hololive_member_whitelist.value) == 47
+	for name in name_list:
+		if name in world.options.hololive_member_whitelist.value:
+			return True
+	return False
 
 def set_all_rules(world: HoloCureWorld) -> None:
 	# In order for AP to generate an item layout that is actually possible for the player to complete,
@@ -76,7 +95,15 @@ def set_all_entrance_rules(world: HoloCureWorld) -> None:
 def set_all_location_rules(world: HoloCureWorld) -> None:
 	for cur_location_data in location_data:
 		if cur_location_data.required_items is not None:
-			if not world.options.grindy_checks and cur_location_data.region_name == "Grindy":
+			if not world.options.grindy_checks and (cur_location_data.region_name == "Grindy Stage" or cur_location_data.region_name == "Grindy HoloHouse"):
+				continue
+			if not is_stage_enabled(world) and (cur_location_data.region_name == "Stage" or cur_location_data.region_name == "Grindy Stage" or cur_location_data.region_name == "Stage 1" or cur_location_data.region_name == "Stage 2" or cur_location_data.region_name == "Stage 3" or cur_location_data.region_name == "Stage 4" or cur_location_data.region_name == "Stage 5" or cur_location_data.region_name == "Stage 1 (Hard)" or cur_location_data.region_name == "Stage 2 (Hard)" or cur_location_data.region_name == "Stage 3 (Hard)" or cur_location_data.region_name == "Stage 4 (Hard)"):
+				continue
+			if (not is_stage_enabled(world) or not world.options.enable_unique_enemy_checks) and cur_location_data.region_name == "StageEnemyCheck":
+				continue
+			if not is_holo_house_enabled(world) and (cur_location_data.region_name == "HoloHouse" or cur_location_data.region_name == "Grindy HoloHouse"):
+				continue
+			if not is_in_hololive_member_whitelist(world, cur_location_data.character_name_list):
 				continue
 			world.set_rule(world.get_location(cur_location_data.location_name), cur_location_data.required_items)
 	# Location rules work no differently from Entrance rules.
@@ -138,17 +165,16 @@ def set_all_location_rules(world: HoloCureWorld) -> None:
 
 
 def set_completion_condition(world: HoloCureWorld) -> None:
-	world.set_completion_rule(Has("Progressive Stage", 4))
-	# Finally, we need to set a completion condition for our world, defining what the player needs to win the game.
-	# For this, we can use world.set_completion_rule.
-	# You can just set a completion condition directly like any other condition, referencing items the player receives:
-#	world.set_completion_rule(HasAll("Sword", "Shield"))
-
-	# In our case, we went for the Victory event design pattern (see create_events() in locations.py).
-	# So lets undo what we just did, and instead set the completion condition to:
-#	world.set_completion_rule(Has("Victory"))
-
-
+	if world.options.end_goal == EndGoal.option_stage:
+		world.set_completion_rule(Has("Progressive Stage", 5))
+	elif world.options.end_goal == EndGoal.option_stage_hard:
+		world.set_completion_rule(Has("Progressive Stage (Hard)", 4))
+	elif world.options.end_goal == EndGoal.option_shop:
+		world.set_completion_rule((Has("Progressive Rod", 5) & Has("Progressive Axe", 8) & Has("Progressive Pickaxe", 8)) | ((Has("Progressive Stage", 5) | Has("Progressive Stage (Hard)", 4)) & Has("Money Gain Up Progressive Shop Upgrade", 10) & Has("Super Chatto Time!") & Has("Stamps Shop Upgrade")))
+	elif world.options.end_goal == EndGoal.option_stage_member:
+		world.set_completion_rule(Has("Clear Stage Count", world.options.hololive_member_goal.value))
+	elif world.options.end_goal == EndGoal.option_achievement:
+		world.set_completion_rule(Has("Achievement Count", world.options.achievement_goal.value))
 # One final comment about rules:
 # If your world exclusively uses Rule Builder rules (like APQuest), it's worth trying CachedRuleBuilderWorld.
 # CachedRuleBuilderWorld is a subclass of World that has a bunch of caching magic to make rules faster.

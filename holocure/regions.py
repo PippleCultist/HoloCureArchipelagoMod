@@ -7,6 +7,8 @@ from BaseClasses import Entrance, Region
 if TYPE_CHECKING:
 	from .world import HoloCureWorld
 
+from .options import EndGoal
+
 # A region is a container for locations ("checks"), which connects to other regions via "Entrance" objects.
 # Many games will model their Regions after physical in-game places, but you can also have more abstract regions.
 # For a location to be in logic, its containing region must be reachable.
@@ -25,8 +27,11 @@ def create_and_connect_regions(world: HoloCureWorld) -> None:
 def create_all_regions(world: HoloCureWorld) -> None:
 	# Creating a region is as simple as calling the constructor of the Region class.
 	menu = Region("Menu", world.player, world.multiworld)
+	stage = Region("Stage", world.player, world.multiworld)
+	stage_enemy_check = Region("StageEnemyCheck", world.player, world.multiworld)
 	holo_house = Region("HoloHouse", world.player, world.multiworld)
-	grindy = Region("Grindy", world.player, world.multiworld)
+	grindy_stage = Region("Grindy Stage", world.player, world.multiworld)
+	grindy_holo_house = Region("Grindy HoloHouse", world.player, world.multiworld)
 	shop = Region("Shop", world.player, world.multiworld)
 	stage1 = Region("Stage 1", world.player, world.multiworld)
 	stage2 = Region("Stage 2", world.player, world.multiworld)
@@ -40,20 +45,24 @@ def create_all_regions(world: HoloCureWorld) -> None:
 	timemode = Region("Time Mode", world.player, world.multiworld)
 
 	# Let's put all these regions in a list.
-	regions = [menu, holo_house, grindy, shop, stage1, stage2, stage3, stage4, stage5, stage1_hard, stage2_hard, stage3_hard, stage4_hard, timemode]
+	regions = [menu, stage, stage_enemy_check, holo_house, grindy_stage, grindy_holo_house, shop, stage1, stage2, stage3, stage4, stage5, stage1_hard, stage2_hard, stage3_hard, stage4_hard, timemode]
 
 	# We now need to add these regions to multiworld.regions so that AP knows about their existence.
 	world.multiworld.regions += regions
 
 
 def connect_regions(world: HoloCureWorld) -> None:
+	from .rules import is_stage_enabled, is_holo_house_enabled
 	# We have regions now, but still need to connect them to each other.
 	# But wait, we no longer have access to the region variables we created in create_all_regions()!
 	# Luckily, once you've submitted your regions to multiworld.regions,
 	# you can get them at any time using world.get_region(...).
 	menu = world.get_region("Menu")
+	stage = world.get_region("Stage")
+	stage_enemy_check = world.get_region("StageEnemyCheck")
 	holo_house = world.get_region("HoloHouse")
-	grindy = world.get_region("Grindy")
+	grindy_stage = world.get_region("Grindy Stage")
+	grindy_holo_house = world.get_region("Grindy HoloHouse")
 	shop = world.get_region("Shop")
 	stage1 = world.get_region("Stage 1")
 	stage2 = world.get_region("Stage 2")
@@ -68,19 +77,27 @@ def connect_regions(world: HoloCureWorld) -> None:
 
 	# The region.connect helper even allows adding a rule immediately.
 	# We'll talk more about rule creation in the set_all_rules() function in rules.py.
-	menu.connect(holo_house, "Unlock Holo House", lambda state: state.has("HoloHouse", world.player))
+	if is_holo_house_enabled(world):
+		menu.connect(holo_house, "Unlock Holo House", lambda state: state.has("HoloHouse", world.player))
 
 	menu.connect(shop, "Shop")
-	menu.connect(stage1, "Stage 1")
-	menu.connect(stage2, "Stage 2", lambda state: state.has("Progressive Stage", world.player, count = 1))
-	menu.connect(stage3, "Stage 3", lambda state: state.has("Progressive Stage", world.player, count = 2))
-	menu.connect(stage4, "Stage 4", lambda state: state.has("Progressive Stage", world.player, count = 3))
-	menu.connect(stage5, "Stage 5", lambda state: state.has("Progressive Stage", world.player, count = 4))
-	menu.connect(stage1_hard, "Stage 1 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 1))
-	menu.connect(stage2_hard, "Stage 2 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 2))
-	menu.connect(stage3_hard, "Stage 3 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 3))
-	menu.connect(stage4_hard, "Stage 4 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 4))
-	menu.connect(timemode, "Time Mode", lambda state: state.has("Time Stage 1", world.player))
+
+	if is_stage_enabled(world):
+		if world.options.enable_unique_enemy_checks:
+			menu.connect(stage_enemy_check, "StageEnemyCheck")
+		menu.connect(stage, "Stage")
+		menu.connect(stage1, "Stage 1")
+		menu.connect(stage2, "Stage 2", lambda state: state.has("Progressive Stage", world.player, count = 1))
+		menu.connect(stage3, "Stage 3", lambda state: state.has("Progressive Stage", world.player, count = 2))
+		menu.connect(stage4, "Stage 4", lambda state: state.has("Progressive Stage", world.player, count = 3))
+		menu.connect(stage5, "Stage 5", lambda state: state.has("Progressive Stage", world.player, count = 4))
+		menu.connect(stage1_hard, "Stage 1 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 1))
+		menu.connect(stage2_hard, "Stage 2 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 2))
+		menu.connect(stage3_hard, "Stage 3 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 3))
+		menu.connect(stage4_hard, "Stage 4 (Hard)", lambda state: state.has("Progressive Stage (Hard)", world.player, count = 4))
+		menu.connect(timemode, "Time Mode", lambda state: state.has("Time Stage 1", world.player))
 
 	if world.options.grindy_checks:
-		menu.connect(grindy, "Grindy")
+		if is_stage_enabled(world):
+			stage.connect(grindy_stage, "Grindy Stage")
+		holo_house.connect(grindy_holo_house, "Grindy HoloHouse")

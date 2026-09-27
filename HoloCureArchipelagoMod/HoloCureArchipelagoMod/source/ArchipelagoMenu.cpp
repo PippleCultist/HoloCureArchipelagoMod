@@ -8,198 +8,11 @@
 #include "imgui/imgui_impl_win32.h"
 #include "ScriptFunctions.h"
 #include "CodeEvents.h"
+#include "Constants.h"
+#include "nlohmann/json.hpp"
 #include <unordered_set>
 #include <deque>
-
-std::unordered_map<itemIndexEnum, std::string> itemToNameMap
-{
-	{ itemIndexEnum_HoloHouse, "HoloHouse" },
-	{ itemIndexEnum_HoloCoin, "HoloCoin" },
-	{ itemIndexEnum_ProgressiveStage, "Progressive Stage" },
-	{ itemIndexEnum_ProgressiveStageHard, "Progressive Stage (HARD)" },
-	{ itemIndexEnum_TimeStage1, "Time Stage 1" },
-	{ itemIndexEnum_AmeliaWatson, "Amelia Watson" },
-	{ itemIndexEnum_GawrGura, "Gawr Gura" },
-	{ itemIndexEnum_NinomaeInanis, "Ninomae Inanis" },
-	{ itemIndexEnum_TakanashiKiara, "Takanashi Kiara" },
-	{ itemIndexEnum_MoriCalliope, "Mori Calliope" },
-	{ itemIndexEnum_HakosBaelz, "Hakos Baelz" },
-	{ itemIndexEnum_OuroKronii, "Ouro Kronii" },
-	{ itemIndexEnum_CeresFauna, "Ceres Fauna" },
-	{ itemIndexEnum_NanashiMumei, "Nanashi Mumei" },
-	{ itemIndexEnum_TsukumoSana, "Tsukumo Sana" },
-	{ itemIndexEnum_IRyS, "IRyS" },
-	{ itemIndexEnum_ShirakamiFubuki, "Shirakami Fubuki" },
-	{ itemIndexEnum_OokamiMio, "Ookami Mio" },
-	{ itemIndexEnum_NekomataOkayu, "Nekomata Okayu" },
-	{ itemIndexEnum_InugamiKorone, "Inugami Korone" },
-	{ itemIndexEnum_TokinoSora, "Tokino Sora" },
-	{ itemIndexEnum_AZki, "AZki" },
-	{ itemIndexEnum_RobocoSan, "Roboco-san" },
-	{ itemIndexEnum_HoshimachiSuisei, "Hoshimachi Suisei" },
-	{ itemIndexEnum_SakuraMiko, "Sakura Miko" },
-	{ itemIndexEnum_AkaiHaato, "Akai Haato" },
-	{ itemIndexEnum_YozoraMel, "Yozora Mel" },
-	{ itemIndexEnum_NatsuiroMatsuri, "Natsuiro Matsuri" },
-	{ itemIndexEnum_AkiRosenthal, "Aki Rosenthal" },
-	{ itemIndexEnum_YuzukiChoco, "Yuzuki Choco" },
-	{ itemIndexEnum_OozoraSubaru, "Oozora Subaru" },
-	{ itemIndexEnum_MurasakiShion, "Murasaki Shion" },
-	{ itemIndexEnum_NakiriAyame, "Nakiri Ayame" },
-	{ itemIndexEnum_MinatoAqua, "Minato Aqua" },
-	{ itemIndexEnum_MoonaHoshinova, "Moona Hoshinova" },
-	{ itemIndexEnum_AiraniIofifteen, "Airani Iofifteen" },
-	{ itemIndexEnum_AyundaRisu, "Ayunda Risu" },
-	{ itemIndexEnum_KureijiOllie, "Kureiji Ollie" },
-	{ itemIndexEnum_PavoliaReine, "Pavolia Reine" },
-	{ itemIndexEnum_AnyaMelfissa, "Anya Melfissa" },
-	{ itemIndexEnum_KoboKanaeru, "Kobo Kanaeru" },
-	{ itemIndexEnum_KaelaKovalskia, "Kaela Kovalskia" },
-	{ itemIndexEnum_VestiaZeta, "Vestia Zeta" },
-	{ itemIndexEnum_UsadaPekora, "Usada Pekora" },
-	{ itemIndexEnum_ShiroganeNoel, "Shirogane Noel" },
-	{ itemIndexEnum_ShiranuiFlare, "Shiranui Flare" },
-	{ itemIndexEnum_HoushouMarine, "Houshou Marine" },
-	{ itemIndexEnum_KiryuCoco, "Kiryu Coco" },
-	{ itemIndexEnum_AmaneKanata, "Amane Kanata" },
-	{ itemIndexEnum_TsunomakiWatame, "Tsunomaki Watame" },
-	{ itemIndexEnum_TokoyamiTowa, "Tokoyami Towa" },
-	{ itemIndexEnum_HimemoriLuna, "Himemori Luna" },
-	{ itemIndexEnum_WamyWater, "Wamy Water" },
-	{ itemIndexEnum_PsychoAxe, "Psycho Axe" },
-	{ itemIndexEnum_XPotato, "X-Potato" },
-	{ itemIndexEnum_BounceBall, "Bounce Ball" },
-	{ itemIndexEnum_Sausage, "Sausage" },
-	{ itemIndexEnum_Glowstick, "Glowstick" },
-	{ itemIndexEnum_SpiderCooking, "Spider Cooking" },
-	{ itemIndexEnum_PlugTypeAsacoco, "Plug Type Asacoco" },
-	{ itemIndexEnum_BLBook, "BL Book" },
-	{ itemIndexEnum_EliteLava, "Elite Lava Bucket" },
-	{ itemIndexEnum_HoloBomb, "Holo Bomb" },
-	{ itemIndexEnum_CuttingBoard, "Cutting Board" },
-	{ itemIndexEnum_FanBeam, "Fan Beam" },
-	{ itemIndexEnum_IdolSong, "Idol Song" },
-	{ itemIndexEnum_CEOTears, "CEO's Tears" },
-	{ itemIndexEnum_ENCurse, "EN's Curse" },
-	{ itemIndexEnum_OwlDagger, "Owl Dagger" },
-	{ itemIndexEnum_EnergyDrink, "Energy Drink" },
-	{ itemIndexEnum_Plushie, "Plushie" },
-	{ itemIndexEnum_Limiter, "Limiter" },
-	{ itemIndexEnum_Beetle, "Beetle" },
-	{ itemIndexEnum_Shackles, "Kusogaki Shackles" },
-	{ itemIndexEnum_NinjaHeadband, "Ninja Headband" },
-	{ itemIndexEnum_ChickenFeather, "Chicken's Feather" },
-	{ itemIndexEnum_RavenFeather, "Raven Feather" },
-	{ itemIndexEnum_BodyPillow, "Body Pillow" },
-	{ itemIndexEnum_FullMeal, "Full Meal" },
-	{ itemIndexEnum_PikiPikiPiman, "Piki Piki Piman" },
-	{ itemIndexEnum_NurseHorn, "Nurse's Horn" },
-	{ itemIndexEnum_Headphones, "Headphones" },
-	{ itemIndexEnum_UberSheep, "Uber Sheep" },
-	{ itemIndexEnum_KnightlyMilk, "Knightly Milk" },
-	{ itemIndexEnum_Sake, "Sake" },
-	{ itemIndexEnum_FaceMask, "Face Mask" },
-	{ itemIndexEnum_CreditCard, "Credit Card" },
-	{ itemIndexEnum_GorillaPaw, "Gorilla's Paw" },
-	{ itemIndexEnum_SuperChattoTime, "Super Chatto Time!" },
-	{ itemIndexEnum_Halu, "Halu" },
-	{ itemIndexEnum_InjectionTypeAsacoco, "Injection Type Asacoco" },
-	{ itemIndexEnum_IdolCostume, "Idol Costume" },
-	{ itemIndexEnum_GWSPill, "GWS Pill" },
-	{ itemIndexEnum_JustBandage, "Just Bandage" },
-	{ itemIndexEnum_Breastplate, "Breastplate" },
-	{ itemIndexEnum_StudyGlasses, "Study Glasses" },
-	{ itemIndexEnum_BlacksmithGear, "Blacksmith's Gear" },
-	{ itemIndexEnum_HopeSoda, "Hope Soda" },
-	{ itemIndexEnum_StolenPiggyBank, "Stolen Piggy Bank" },
-	{ itemIndexEnum_CandyKingdomSweets, "Candy Kingdom Sweets" },
-	{ itemIndexEnum_ResearcherCoat, "Researcher's Coat" },
-	{ itemIndexEnum_Membership, "Membership" },
-	{ itemIndexEnum_DevilHat, "Devil Hat" },
-	{ itemIndexEnum_FocusShades, "Focus Shades" },
-	{ itemIndexEnum_CorporationPin, "Corporation Pin" },
-	{ itemIndexEnum_PromiseTiara, "Promise Tiara" },
-	{ itemIndexEnum_SpecialAttackShopUpgrade, "Special Attack Shop Upgrade" },
-	{ itemIndexEnum_GrowthProgressiveShopUpgrade, "Growth Progressive Shop Upgrade" },
-	{ itemIndexEnum_RerollProgressiveShopUpgrade, "Reroll Progressive Shop Upgrade" },
-	{ itemIndexEnum_EliminateProgressiveShopUpgrade, "Eliminate Progressive Shop Upgrade" },
-	{ itemIndexEnum_HoldProgressiveShopUpgrade, "Hold Progressive Shop Upgrade" },
-	{ itemIndexEnum_CustomizeShopUpgrade, "Customize Shop Upgrade" },
-	{ itemIndexEnum_SupportsShopUpgrade, "Supports Shop Upgrade" },
-	{ itemIndexEnum_MaterialShopUpgrade, "Material Find Shop Upgrade" },
-	{ itemIndexEnum_StampsShopUpgrade, "Stamps Shop Upgrade" },
-	{ itemIndexEnum_EnchantmentsShopUpgrade, "Enchantments Shop Upgrade" },
-	{ itemIndexEnum_FandomShopUpgrade, "Fandom Shop Upgrade" },
-	{ itemIndexEnum_FanLettersShopUpgrade, "Fan Letters Shop Upgrade" },
-	{ itemIndexEnum_MaxHPProgressiveShopUpgrade, "Max HP Progressive Shop Upgrade" },
-	{ itemIndexEnum_ATKProgressiveShopUpgrade, "ATK Progressive Shop Upgrade" },
-	{ itemIndexEnum_SPDProgressiveShopUpgrade, "SPD Progressive Shop Upgrade" },
-	{ itemIndexEnum_CritProgressiveShopUpgrade, "Crit Progressive Shop Upgrade" },
-	{ itemIndexEnum_PickUpProgressiveShopUpgrade, "Pick Up Range Progressive Shop Upgrade" },
-	{ itemIndexEnum_HasteProgressiveShopUpgrade, "Haste Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_RegenProgressiveShopUpgrade, "Regen Progressive Shop Upgrade" },
-	{ itemIndexEnum_DefenseProgressiveShopUpgrade, "Defense Progressive Shop Upgrade" },
-	{ itemIndexEnum_SpecialCooldownProgressiveShopUpgrade, "Special Cooldown Reduction Progressive Shop Upgrade" },
-	{ itemIndexEnum_SkillUpProgressiveShopUpgrade, "Skill Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_EXPGainProgressiveShopUpgrade, "EXP Gain Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_FoodDropProgressiveShopUpgrade, "Food Drops Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_MoneyGainProgressiveShopUpgrade, "Money Gain Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_EnhancementProgressiveShopUpgrade, "Enhancement Rate Up Progressive Shop Upgrade" },
-	{ itemIndexEnum_MarketingProgressiveShopUpgrade, "Marketing Up Progressive Shop Upgrade" },
-};
-
-std::unordered_set<locationIndexEnum> grindyLocations
-{
-	locationIndexEnum_AmeliaWastonGachikoi,
-	locationIndexEnum_GawrGuraGachikoi,
-	locationIndexEnum_NinomaeInanisGachikoi,
-	locationIndexEnum_TakanshiKiaraGachikoi,
-	locationIndexEnum_MoriCalliopeGachikoi,
-	locationIndexEnum_HakosBaelzGachikoi,
-	locationIndexEnum_OuroKroniiGachikoi,
-	locationIndexEnum_CeresFaunaGachikoi,
-	locationIndexEnum_NanashiMumeiGachikoi,
-	locationIndexEnum_TsukumoSanaGachikoi,
-	locationIndexEnum_IRySGachikoi,
-	locationIndexEnum_ShirakamiFubukiGachikoi,
-	locationIndexEnum_OokamiMioGachikoi,
-	locationIndexEnum_NekomataOkayuGachikoi,
-	locationIndexEnum_InugamiKoroneGachikoi,
-	locationIndexEnum_TokinoSoraGachikoi,
-	locationIndexEnum_AZkiGachikoi,
-	locationIndexEnum_RobocoGachikoi,
-	locationIndexEnum_HoshimachiSuiseiGachikoi,
-	locationIndexEnum_SakuraMikoGachikoi,
-	locationIndexEnum_AkaiHaatoGachikoi,
-	locationIndexEnum_YozoraMelGachikoi,
-	locationIndexEnum_NatsuiroMatsuriGachikoi,
-	locationIndexEnum_AkiRosenthalGachikoi,
-	locationIndexEnum_YuzukiChocoGachikoi,
-	locationIndexEnum_OozoraSubaruGachikoi,
-	locationIndexEnum_MurasakiShionGachikoi,
-	locationIndexEnum_NakiriAyameGachikoi,
-	locationIndexEnum_MinatoAquaGachikoi,
-	locationIndexEnum_MoonaHoshinovaGachikoi,
-	locationIndexEnum_AiraniIofifteenGachikoi,
-	locationIndexEnum_AyundaRisuGachikoi,
-	locationIndexEnum_KureijiOllieGachikoi,
-	locationIndexEnum_PavoliaReineGachikoi,
-	locationIndexEnum_AnyaMelfissaGachikoi,
-	locationIndexEnum_KoboKanaeruGachikoi,
-	locationIndexEnum_KaelaKovalskiaGachikoi,
-	locationIndexEnum_VestiaZetaGachikoi,
-	locationIndexEnum_UsadaPekoraGachikoi,
-	locationIndexEnum_ShiroganeNoelGachikoi,
-	locationIndexEnum_ShiranuiFlareGachikoi,
-	locationIndexEnum_HoushouMarineGachikoi,
-	locationIndexEnum_KiryuCocoGachikoi,
-	locationIndexEnum_AmaneKanataGachikoi,
-	locationIndexEnum_TsunomakiWatameGachikoi,
-	locationIndexEnum_TokoyamiTowaGachikoi,
-	locationIndexEnum_HimemoriLunaGachikoi,
-	locationIndexEnum_ClearTowerOfSuffering,
-	locationIndexEnum_GetSomeHelp,
-};
+#include <fstream>
 
 // Data
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -231,13 +44,24 @@ bool isConnecting = false;
 bool newConnectSendChecks = false;
 
 bool isGrindyChecksEnabled = false;
+bool isStageEnabled = false;
+bool isHoloHouseRandomizationEnabled = false;
+bool isUniqueEnemyCheckEnabled = false;
+int hololiveMemberGoal = 1;
+int achievementGoal = 1;
+int endGoal = -1;
 
 std::unordered_set<locationIndexEnum> serverObtainedLocationSet;
+std::unordered_set<std::string> hololiveMemberWhiteList;
 
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
 extern std::unordered_set<locationIndexEnum> obtainedLocationSet;
 extern std::unordered_map<locationIndexEnum, AP_NetworkItem> locationItemHintMap;
+extern std::unordered_set<locationIndexEnum> holoHouseRandomizationLocations;
+extern std::unordered_set<locationIndexEnum> enemyCheckLocations;
+extern std::unordered_map<goalIndexEnum, std::unordered_set<locationIndexEnum>> goalIndexToLocationListMap;
+extern std::map<locationIndexEnum, std::vector<std::string>> locationToCharacterNameMap;
 
 
 // Helper functions
@@ -360,53 +184,82 @@ void handleLogMenu()
 
 bool showPassword = false;
 bool hasInvalidField = false;
+bool is2xStageTimer = false;
+int connectTimer = 0;
 
-void handleConnectMenu()
+void handleGameplayMenu()
 {
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 800, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Connect");
+	ImGui::Begin("Gameplay");
 
-	ImGui::InputTextWithHint("IP", "localhost:38281", &apIP);
-	ImGui::InputText("Player Name", &apPlayerName);
-	ImGui::InputText("Password", &apPassword, showPassword ? ImGuiInputTextFlags_None : ImGuiInputTextFlags_Password);
-	ImGui::Checkbox("Show Password", &showPassword);
-
-	if (hasInvalidField)
+	ImGui::BeginTabBar("Game");
+	
+	if (ImGui::BeginTabItem("Connect"))
 	{
-		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Please input a non empty IP/Player Name");
-	}
-
-	if (isConnected || isConnecting)
-	{
-		ImGui::BeginDisabled();
-	}
-
-	if (ImGui::Button("Connect"))
-	{
-		if (apIP.empty() || apPlayerName.empty())
+		connectTimer++;
+		if (connectTimer >= 60)
 		{
-			hasInvalidField = true;
+			RValue saveDir;
+			g_ModuleInterface->GetBuiltin("game_save_id", nullptr, NULL_INDEX, saveDir);
+			if (std::filesystem::exists(saveDir.ToString() + "/ArchipelagoConnect.txt"))
+			{
+				std::ifstream inFile;
+				inFile.open(saveDir.ToString() + "/ArchipelagoConnect.txt");
+
+				std::getline(inFile, apPlayerName);
+				
+				// TODO: Look into if there's a way to determine empty password
+				std::string tempPassword;
+				std::getline(inFile, tempPassword);
+
+				std::getline(inFile, apIP);
+
+				inFile.close();
+
+				std::filesystem::remove(saveDir.ToString() + "/ArchipelagoConnect.txt");
+			}
+			connectTimer = 0;
 		}
-		else
+		ImGui::InputTextWithHint("IP", "localhost:38281", &apIP);
+		ImGui::InputText("Player Name", &apPlayerName);
+		ImGui::InputText("Password", &apPassword, showPassword ? ImGuiInputTextFlags_None : ImGuiInputTextFlags_Password);
+		ImGui::Checkbox("Show Password", &showPassword);
+
+		if (hasInvalidField)
 		{
-			hasInvalidField = false;
-			initArchipelago();
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Please input a non empty IP/Player Name");
 		}
+
+		if (ImGui::Button("Connect"))
+		{
+			if (apIP.empty() || apPlayerName.empty())
+			{
+				hasInvalidField = true;
+			}
+			else
+			{
+				hasInvalidField = false;
+				initArchipelago();
+			}
+		}
+		ImGui::EndTabItem();
 	}
 
-	if (isConnected || isConnecting)
+	if (ImGui::BeginTabItem("Game Options"))
 	{
-		ImGui::EndDisabled();
+		ImGui::Checkbox("Enable 2x Stage Timer", &is2xStageTimer);
+		ImGui::EndTabItem();
 	}
+
+	ImGui::EndTabBar();
 
 	ImGui::End();
 }
 
 void sendAPCheck(CInstance* Self, locationIndexEnum sendLocationIndex)
 {
-	AP_SendItem(sendLocationIndex);
 	obtainedLocationSet.insert(sendLocationIndex);
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	RValue archipelagoChecks = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "archipelagoChecks" });
@@ -417,76 +270,198 @@ void sendAPCheck(CInstance* Self, locationIndexEnum sendLocationIndex)
 		g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "archipelagoChecks", apCheckStruct });
 		archipelagoChecks = apCheckStruct;
 	}
-	
-	g_ModuleInterface->CallBuiltin("struct_set", { archipelagoChecks, std::format("ap_{}", static_cast<int>(sendLocationIndex)).c_str(), 1});
-	RValue result;
-	origSavePlayerSaveScript(Self, nullptr, result, 0, nullptr);
+
+	std::string checkStr = std::format("ap_{}", static_cast<int>(sendLocationIndex));
+
+	if (!g_ModuleInterface->CallBuiltin("struct_exists", { archipelagoChecks, checkStr.c_str() }).ToBoolean())
+	{
+		g_ModuleInterface->CallBuiltin("struct_set", { archipelagoChecks, checkStr.c_str(), 1 });
+		RValue result;
+		origSavePlayerSaveScript(Self, nullptr, result, 0, nullptr);
+	}
+	if (serverObtainedLocationSet.contains(sendLocationIndex))
+	{
+		return;
+	}
+	AP_SendItem(sendLocationIndex);
 }
 
 bool isForceCheck = false;
 bool isLocationHint = false;
+bool isProgressionItem = false;
+bool isUsefulItem = false;
+bool isTrapItem = false;
+bool isOnlyShowGoal = false;
 
-void handleCheckMenu(CInstance* Self)
+void handleArchipelagoMenu(CInstance* Self)
 {
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 400, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(400, 720), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Checks");
-//	ImGuiListClipper clipper;
-//	clipper.Begin(locationToNameMap.size());
+	ImGui::Begin("Archipelago Window");
 
-	ImGui::Checkbox("Toggle Force Check", &isForceCheck);
-	ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
-	// TODO: Improve this when there's more options
-	ImGui::Text("%d / %d", obtainedLocationSet.size(), isGrindyChecksEnabled ? locationToNameMap.size() : locationToNameMap.size() - grindyLocations.size());
-
-	if (ImGui::BeginTable("ChecksTable", isLocationHint ? 2 : 1, ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX))
+	ImGui::BeginTabBar("Archipelago");
+	if (ImGui::BeginTabItem("Checks"))
 	{
-		// TODO: Fix this UI
-		int curRow = 0;
+		//	ImGuiListClipper clipper;
+		//	clipper.Begin(locationToNameMap.size());
+
+//		ImGui::Checkbox("Toggle Force Check", &isForceCheck);
+		ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
+		ImGui::Checkbox("Filter Progression Item", &isProgressionItem);
+		ImGui::Checkbox("Filter Useful Item", &isUsefulItem);
+		ImGui::Checkbox("Filter Trap Item", &isTrapItem);
+		ImGui::Checkbox("Only Show Goal Locations", &isOnlyShowGoal);
+		int itemBitFlag = (isProgressionItem ? 0b1 : 0) | (isUsefulItem ? 0b10 : 0) | (isTrapItem ? 0b100 : 0);
+		// TODO: Try to figure out a way to not need an extra loop for this. Maybe precalculate it somewhere?
+		int obtainedCount = 0;
+		int count = 0;
 		for (auto& locationPair : locationToNameMap)
 		{
 			if (!isGrindyChecksEnabled && grindyLocations.contains(locationPair.first))
 			{
 				continue;
 			}
-			ImGui::TableNextRow();
-			//ImGui::TableNextColumn();
-			ImGui::TableSetColumnIndex(0);
-			if (isForceCheck)
+			if (!isStageEnabled && (endGoal != goalIndexEnum_BeatAllNormalStages && endGoal != goalIndexEnum_BeatAllHardStages) && (stageLocations.contains(locationPair.first) || enemyCheckLocations.contains(locationPair.first)))
 			{
-				if (ImGui::Button(std::format("Send##{}", curRow).c_str()))
-				{
-					sendAPCheck(Self, locationPair.first);
-				}
-				ImGui::SameLine();
+				continue;
 			}
-			ImVec4 textColor;
+			if (!isHoloHouseRandomizationEnabled && holoHouseRandomizationLocations.contains(locationPair.first))
+			{
+				continue;
+			}
+			if (!isUniqueEnemyCheckEnabled && enemyCheckLocations.contains(locationPair.first))
+			{
+				continue;
+			}
+			if (!hololiveMemberWhiteList.empty() && hololiveMemberWhiteList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
+			{
+				bool isInWhiteList = false;
+				for (auto& curCharName : locationToCharacterNameMap[locationPair.first])
+				{
+					if (hololiveMemberWhiteList.contains(curCharName))
+					{
+						isInWhiteList = true;
+						break;
+					}
+				}
+
+				if (!isInWhiteList)
+				{
+					continue;
+				}
+			}
+			if (!locationItemHintMap.empty() && (locationItemHintMap[locationPair.first].flags & itemBitFlag) != itemBitFlag)
+			{
+				continue;
+			}
+			if (endGoal != -1 && isOnlyShowGoal && !goalIndexToLocationListMap[static_cast<goalIndexEnum>(endGoal)].contains(locationPair.first))
+			{
+				continue;
+			}
 			if (obtainedLocationSet.contains(locationPair.first))
 			{
-				textColor = ImVec4(0, 1, 0, 1);
+				obtainedCount++;
 			}
-			else if (serverObtainedLocationSet.contains(locationPair.first))
-			{
-				textColor = ImVec4(1, .65, 0, 1);
-			}
-			else
-			{
-				textColor = ImVec4(1, 0, 0, 1);
-			}
-			ImGui::TextColored(textColor, "%s", locationPair.second.c_str());
-
-			if (isLocationHint)
-			{
-			//	ImGui::TableSetColumnIndex(1);
-				//ImGui::TableNextColumn();
-				ImGui::Text("%s %s", locationItemHintMap[locationPair.first].playerName.c_str(), locationItemHintMap[locationPair.first].itemName.c_str());
-			}
-
-			curRow++;
+			count++;
 		}
-		ImGui::EndTable();
+		ImGui::Text("%d / %d", obtainedCount, count);
+
+		if (ImGui::BeginTable("ChecksTable", isLocationHint ? 2 : 1, ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX))
+		{
+			// TODO: Fix this UI
+			int curRow = 0;
+			for (auto& locationPair : locationToNameMap)
+			{
+				if (!isGrindyChecksEnabled && grindyLocations.contains(locationPair.first))
+				{
+					continue;
+				}
+				if (!isStageEnabled && (endGoal != goalIndexEnum_BeatAllNormalStages && endGoal != goalIndexEnum_BeatAllHardStages) && (stageLocations.contains(locationPair.first) || enemyCheckLocations.contains(locationPair.first)))
+				{
+					continue;
+				}
+				if (!isHoloHouseRandomizationEnabled && holoHouseRandomizationLocations.contains(locationPair.first))
+				{
+					continue;
+				}
+				if (!isUniqueEnemyCheckEnabled && enemyCheckLocations.contains(locationPair.first))
+				{
+					continue;
+				}
+				if (!hololiveMemberWhiteList.empty() && hololiveMemberWhiteList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
+				{
+					bool isInWhiteList = false;
+					for (auto& curCharName : locationToCharacterNameMap[locationPair.first])
+					{
+						if (hololiveMemberWhiteList.contains(curCharName))
+						{
+							isInWhiteList = true;
+							break;
+						}
+					}
+
+					if (!isInWhiteList)
+					{
+						continue;
+					}
+				}
+				if (!locationItemHintMap.empty() && (locationItemHintMap[locationPair.first].flags & itemBitFlag) != itemBitFlag)
+				{
+					continue;
+				}
+				if (endGoal != -1 && isOnlyShowGoal && !goalIndexToLocationListMap[static_cast<goalIndexEnum>(endGoal)].contains(locationPair.first))
+				{
+					continue;
+				}
+				ImGui::TableNextRow();
+				//ImGui::TableNextColumn();
+				ImGui::TableSetColumnIndex(0);
+				if (isForceCheck)
+				{
+					if (ImGui::Button(std::format("Send##{}", curRow).c_str()))
+					{
+						sendAPCheck(Self, locationPair.first);
+					}
+					ImGui::SameLine();
+				}
+				ImVec4 textColor;
+				if (obtainedLocationSet.contains(locationPair.first))
+				{
+					textColor = ImVec4(0, 1, 0, 1);
+				}
+				else if (serverObtainedLocationSet.contains(locationPair.first))
+				{
+					textColor = ImVec4(1, .65, 0, 1);
+				}
+				else
+				{
+					textColor = ImVec4(1, 0, 0, 1);
+				}
+				ImGui::TextColored(textColor, "%s", locationPair.second.c_str());
+
+				if (isLocationHint && !locationItemHintMap.empty())
+				{
+					ImGui::Text("(%s) %s", locationItemHintMap[locationPair.first].playerName.c_str(), locationItemHintMap[locationPair.first].itemName.c_str());
+				}
+
+				curRow++;
+			}
+			ImGui::EndTable();
+		}
+		ImGui::EndTabItem();
 	}
+
+	if (ImGui::BeginTabItem("Items"))
+	{
+		for (auto& curItem : curObtainedItems)
+		{
+			ImGui::Text("%s %d", itemToNameMap[curItem.first].c_str(), curItem.second);
+		}
+		ImGui::EndTabItem();
+	}
+
+	ImGui::EndTabBar();
 
 	ImGui::End();
 }
@@ -494,8 +469,8 @@ void handleCheckMenu(CInstance* Self)
 void handleImGUI(CInstance* Self)
 {
 	handleLogMenu();
-	handleConnectMenu();
-	handleCheckMenu(Self);
+	handleGameplayMenu();
+	handleArchipelagoMenu(Self);
 }
 
 void loggingCallback(std::string logMessage)
@@ -539,6 +514,16 @@ void itemReceiveCallback(int64_t itemID, bool isNotify)
 	else if (itemID >= itemIndexEnum_SpecialAttackShopUpgrade && itemID <= itemIndexEnum_MarketingProgressiveShopUpgrade)
 	{
 		// Shop
+		itemIndexReceiveQueue.push_back(itemIndexID);
+	}
+	else if (itemID >= itemIndexEnum_StandardSoil && itemID <= itemIndexEnum_GarlicSeed)
+	{
+		// HoloHouse Farm
+		itemIndexReceiveQueue.push_back(itemIndexID);
+	}
+	else if (itemID >= itemIndexEnum_ProgressiveRod && itemID <= itemIndexEnum_ProgressivePickaxe)
+	{
+		// HoloHouse Forge
 		itemIndexReceiveQueue.push_back(itemIndexID);
 	}
 	else
@@ -600,7 +585,7 @@ void loadModImguiMenu()
 void renderImguiWindow(CInstance* Self)
 {
 	AP_ConnectionStatus connectStatus = AP_GetConnectionStatus();
-	isConnected = (connectStatus == AP_ConnectionStatus::Connected);
+	isConnected = (connectStatus == AP_ConnectionStatus::Authenticated);
 
 //	if (connectStatus == AP_ConnectionStatus::Disconnected || connectStatus == AP_ConnectionStatus::ConnectionRefused)
 	{
@@ -674,9 +659,58 @@ void renderImguiWindow(CInstance* Self)
 	}
 }
 
+void slotDataEndGoalCallback(int slotData)
+{
+	loggingCallback("end goal: " + std::to_string(slotData));
+	endGoal = slotData;
+}
+
 void slotDataGrindyChecksCallback(int slotData)
 {
+	loggingCallback("grindy checks: " + std::to_string(slotData));
 	isGrindyChecksEnabled = slotData;
+}
+
+void slotDataStageEnabledCallback(int slotData)
+{
+	loggingCallback("stage enabled: " + std::to_string(slotData));
+	isStageEnabled = slotData;
+}
+
+void slotDataEnableHoloHouseRandomizationCallback(int slotData)
+{
+	loggingCallback("Holo House randomization: " + std::to_string(slotData));
+	isHoloHouseRandomizationEnabled = slotData;
+}
+
+void slotDataEnableUniqueEnemyChecksCallback(int slotData)
+{
+	loggingCallback("Unique Enemy Check: " + std::to_string(slotData));
+	isUniqueEnemyCheckEnabled = slotData;
+}
+
+void slotDataHololiveMemberWhitelistCallback(std::string slotData)
+{
+	loggingCallback("Hololive Member Whitelist: " + slotData);
+	hololiveMemberWhiteList.clear();
+	nlohmann::json whiteList = nlohmann::json::parse(slotData);
+	int arrLen = whiteList.size();
+	for (int i = 0; i < arrLen; i++)
+	{
+		hololiveMemberWhiteList.insert(whiteList[i].get<std::string>());
+	}
+}
+
+void slotDataHololiveMemberGoalCallback(int slotData)
+{
+	loggingCallback("Hololive Member Goal: " + std::to_string(slotData));
+	hololiveMemberGoal = slotData;
+}
+
+void slotDataAchievementGoalCallback(int slotData)
+{
+	loggingCallback("Achievement Goal: " + std::to_string(slotData));
+	achievementGoal = slotData;
 }
 
 void initArchipelago()
@@ -690,7 +724,14 @@ void initArchipelago()
 	AP_SetLocationCheckedCallback(locationCheckedCallback);
 	AP_SetLocationInfoCallback(locationInfoCallback);
 
+	AP_RegisterSlotDataIntCallback("end_goal", slotDataEndGoalCallback);
 	AP_RegisterSlotDataIntCallback("grindy_checks", slotDataGrindyChecksCallback);
+	AP_RegisterSlotDataIntCallback("enable_stage", slotDataStageEnabledCallback);
+	AP_RegisterSlotDataIntCallback("enable_holo_house_randomization", slotDataEnableHoloHouseRandomizationCallback);
+	AP_RegisterSlotDataIntCallback("enable_unique_enemy_checks", slotDataEnableUniqueEnemyChecksCallback);
+	AP_RegisterSlotDataRawCallback("hololive_member_whitelist", slotDataHololiveMemberWhitelistCallback);
+	AP_RegisterSlotDataIntCallback("hololive_member_goal", slotDataHololiveMemberGoalCallback);
+	AP_RegisterSlotDataIntCallback("achievement_goal", slotDataAchievementGoalCallback);
 
 	AP_SetLoggingCallback(loggingCallback);
 

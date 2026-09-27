@@ -7,6 +7,8 @@ from BaseClasses import Item, ItemClassification
 if TYPE_CHECKING:
 	from .world import HoloCureWorld
 
+from .options import EndGoal
+
 # Every item must have a unique integer ID associated with it.
 # We will have a lookup from item name to ID here that, in world.py, we will import and bind to the world class.
 # Even if an item doesn't exist on specific options, it must be present in this lookup.
@@ -145,6 +147,24 @@ ITEM_NAME_TO_ID = {
 	"Money Gain Up Progressive Shop Upgrade": 3024,
 	"Enhancement Rate Up Progressive Shop Upgrade": 3025,
 	"Marketing Up Progressive Shop Upgrade": 3026,
+	"Standard Soil": 4000,
+	"Expedited Soil": 4001,
+	"Enhanced Soil": 4002,
+	"Wheat Seed": 4003,
+	"Tomato Seed": 4004,
+	"Potato Seed": 4005,
+	"Rice Seed": 4006,
+	"Onion Seed": 4007,
+	"Carrot Seed": 4008,
+	"Green Bean Seed": 4009,
+	"Pepper Seed": 4010,
+	"Strawberry Seed": 4011,
+	"Corn Seed": 4012,
+	"Radish Seed": 4013,
+	"Garlic Seed": 4014,
+	"Progressive Rod": 4100,
+	"Progressive Axe": 4101,
+	"Progressive Pickaxe": 4102,
 }
 # Items should have a defined default classification.
 # In our case, we will make a dictionary from item name to classification.
@@ -282,6 +302,24 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
 	"Money Gain Up Progressive Shop Upgrade": ItemClassification.progression,
 	"Enhancement Rate Up Progressive Shop Upgrade": ItemClassification.progression,
 	"Marketing Up Progressive Shop Upgrade": ItemClassification.progression,
+	"Standard Soil": ItemClassification.progression,
+	"Expedited Soil": ItemClassification.progression,
+	"Enhanced Soil": ItemClassification.progression,
+	"Wheat Seed": ItemClassification.progression,
+	"Tomato Seed": ItemClassification.progression,
+	"Potato Seed": ItemClassification.progression,
+	"Rice Seed": ItemClassification.progression,
+	"Onion Seed": ItemClassification.progression,
+	"Carrot Seed": ItemClassification.progression,
+	"Green Bean Seed": ItemClassification.progression,
+	"Pepper Seed": ItemClassification.progression,
+	"Strawberry Seed": ItemClassification.progression,
+	"Corn Seed": ItemClassification.progression,
+	"Radish Seed": ItemClassification.progression,
+	"Garlic Seed": ItemClassification.progression,
+	"Progressive Rod": ItemClassification.progression,
+	"Progressive Axe": ItemClassification.progression,
+	"Progressive Pickaxe": ItemClassification.progression,
 }
 
 
@@ -324,6 +362,7 @@ def create_item_with_correct_classification(world: HoloCureWorld, name: str) -> 
 
 # With those two helper functions defined, let's now get to actually creating and submitting our itempool.
 def create_all_items(world: HoloCureWorld) -> None:
+	from .rules import is_stage_enabled, is_holo_house_enabled
 	# This is the function in which we will create all the items that this world submits to the multiworld item pool.
 	# There must be exactly as many items as there are locations.
 	# In our case, there are either six or seven locations.
@@ -333,9 +372,7 @@ def create_all_items(world: HoloCureWorld) -> None:
 	# Creating items should generally be done via the world's create_item method.
 	# First, we create a list containing all the items that always exist.
 
-	itempool: list[Item] = [
-		world.create_item("HoloHouse"),
-	]
+	itempool: list[Item] = []
 
 	stages: list[Item] = [
 		world.create_item("Progressive Stage"),
@@ -353,55 +390,57 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("Time Stage 1"),
 	]
 
-	characters: list[Item] = [
-		world.create_item("Amelia Watson"),
-		world.create_item("Gawr Gura"),
-		world.create_item("Ninomae Inanis"),
-		world.create_item("Takanashi Kiara"),
-		world.create_item("Mori Calliope"),
-		world.create_item("Hakos Baelz"),
-		world.create_item("Ouro Kronii"),
-		world.create_item("Ceres Fauna"),
-		world.create_item("Nanashi Mumei"),
-		world.create_item("Tsukumo Sana"),
-		world.create_item("IRyS"),
-		world.create_item("Shirakami Fubuki"),
-		world.create_item("Ookami Mio"),
-		world.create_item("Nekomata Okayu"),
-		world.create_item("Inugami Korone"),
-		world.create_item("Tokino Sora"),
-		world.create_item("AZki"),
-		world.create_item("Roboco-san"),
-		world.create_item("Hoshimachi Suisei"),
-		world.create_item("Sakura Miko"),
-		world.create_item("Akai Haato"),
-		world.create_item("Yozora Mel"),
-		world.create_item("Natsuiro Matsuri"),
-		world.create_item("Aki Rosenthal"),
-		world.create_item("Yuzuki Choco"),
-		world.create_item("Oozora Subaru"),
-		world.create_item("Murasaki Shion"),
-		world.create_item("Nakiri Ayame"),
-		world.create_item("Minato Aqua"),
-		world.create_item("Moona Hoshinova"),
-		world.create_item("Airani Iofifteen"),
-		world.create_item("Ayunda Risu"),
-		world.create_item("Kureiji Ollie"),
-		world.create_item("Pavolia Reine"),
-		world.create_item("Anya Melfissa"),
-		world.create_item("Kobo Kanaeru"),
-		world.create_item("Kaela Kovalskia"),
-		world.create_item("Vestia Zeta"),
-		world.create_item("Usada Pekora"),
-		world.create_item("Shirogane Noel"),
-		world.create_item("Shiranui Flare"),
-		world.create_item("Houshou Marine"),
-		world.create_item("Kiryu Coco"),
-		world.create_item("Amane Kanata"),
-		world.create_item("Tsunomaki Watame"),
-		world.create_item("Tokoyami Towa"),
-		world.create_item("Himemori Luna"),
+	character_names: list[str] = [
+		"Amelia Watson",
+		"Gawr Gura",
+		"Ninomae Inanis",
+		"Takanashi Kiara",
+		"Mori Calliope",
+		"Hakos Baelz",
+		"Ouro Kronii",
+		"Ceres Fauna",
+		"Nanashi Mumei",
+		"Tsukumo Sana",
+		"IRyS",
+		"Shirakami Fubuki",
+		"Ookami Mio",
+		"Nekomata Okayu",
+		"Inugami Korone",
+		"Tokino Sora",
+		"AZki",
+		"Roboco-san",
+		"Hoshimachi Suisei",
+		"Sakura Miko",
+		"Akai Haato",
+		"Yozora Mel",
+		"Natsuiro Matsuri",
+		"Aki Rosenthal",
+		"Yuzuki Choco",
+		"Oozora Subaru",
+		"Murasaki Shion",
+		"Nakiri Ayame",
+		"Minato Aqua",
+		"Moona Hoshinova",
+		"Airani Iofifteen",
+		"Ayunda Risu",
+		"Kureiji Ollie",
+		"Pavolia Reine",
+		"Anya Melfissa",
+		"Kobo Kanaeru",
+		"Kaela Kovalskia",
+		"Vestia Zeta",
+		"Usada Pekora",
+		"Shirogane Noel",
+		"Shiranui Flare",
+		"Houshou Marine",
+		"Kiryu Coco",
+		"Amane Kanata",
+		"Tsunomaki Watame",
+		"Tokoyami Towa",
+		"Himemori Luna",
 	]
+
+	characters: list[Item] = [world.create_item(character_name) for character_name in character_names if len(world.options.hololive_member_whitelist.value) == 0 or character_name in world.options.hololive_member_whitelist.value]
 
 	weapons: list[Item] = [
 		world.create_item("Wamy Water"),
@@ -607,18 +646,66 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("Marketing Up Progressive Shop Upgrade"),
 	]
 
-	start_char_list = world.random.sample(characters, 5)
-	start_weapon_list = world.random.sample(weapons, 7)
-	start_items_list = world.random.sample(items, 9)
-	[world.push_precollected(curItem) for curItem in start_char_list]
-	[world.push_precollected(curItem) for curItem in start_weapon_list]
-	[world.push_precollected(curItem) for curItem in start_items_list]
+	if is_holo_house_enabled(world):
+		if not is_stage_enabled(world):
+			world.push_precollected(world.create_item("HoloHouse"))
+		else:
+			itempool += [world.create_item("HoloHouse")]
+		holo_house_items: list[Item] = [
+			world.create_item("Progressive Rod"),
+			world.create_item("Progressive Rod"),
+			world.create_item("Progressive Rod"),
+			world.create_item("Progressive Rod"),
+			world.create_item("Progressive Rod"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Axe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Progressive Pickaxe"),
+			world.create_item("Standard Soil"),
+			world.create_item("Expedited Soil"),
+			world.create_item("Enhanced Soil"),
+			world.create_item("Wheat Seed"),
+			world.create_item("Tomato Seed"),
+			world.create_item("Potato Seed"),
+			world.create_item("Rice Seed"),
+			world.create_item("Onion Seed"),
+			world.create_item("Carrot Seed"),
+			world.create_item("Green Bean Seed"),
+			world.create_item("Pepper Seed"),
+			world.create_item("Strawberry Seed"),
+			world.create_item("Corn Seed"),
+			world.create_item("Radish Seed"),
+			world.create_item("Garlic Seed"),
+		]
+		itempool += holo_house_items
 
-	itempool += stages
+	start_char_list = world.random.sample(characters, min(5, len(characters)))
+	[world.push_precollected(curItem) for curItem in start_char_list]
+
+	if is_stage_enabled(world):
+		start_weapon_list = world.random.sample(weapons, 7)
+		start_items_list = world.random.sample(items, 9)
+		[world.push_precollected(curItem) for curItem in start_weapon_list]
+		[world.push_precollected(curItem) for curItem in start_items_list]
+		world.push_precollected(world.create_item("Progressive Stage"))
+		itempool += [weapon for weapon in weapons if weapon not in start_weapon_list]
+		itempool += [item for item in items if item not in start_items_list]
+		itempool += shop
+		itempool += stages
+	
 	itempool += [char for char in characters if char not in start_char_list]
-	itempool += [weapon for weapon in weapons if weapon not in start_weapon_list]
-	itempool += [item for item in items if item not in start_items_list]
-	itempool += shop
 
 	# Archipelago requires that each world submits as many locations as it submits items.
 	# This is where we can use our filler and trap items.

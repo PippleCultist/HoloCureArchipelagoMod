@@ -156,6 +156,7 @@
     <ClCompile Include="source\BuiltinFunctions.cpp" />
     <ClCompile Include="source\CodeEvents.cpp" />
     <ClCompile Include="source\CommonFunctions.cpp" />
+    <ClCompile Include="source\Constants.cpp" />
     <ClCompile Include="source\ModuleMain.cpp" />
     <ClCompile Include="source\ScriptFunctions.cpp" />
   </ItemGroup>
@@ -182,6 +183,7 @@
     <ClInclude Include="source\BuiltinFunctions.h" />
     <ClInclude Include="source\CodeEvents.h" />
     <ClInclude Include="source\CommonFunctions.h" />
+    <ClInclude Include="source\Constants.h" />
     <ClInclude Include="source\ModuleMain.h" />
     <ClInclude Include="source\ScriptFunctions.h" />
   </ItemGroup>

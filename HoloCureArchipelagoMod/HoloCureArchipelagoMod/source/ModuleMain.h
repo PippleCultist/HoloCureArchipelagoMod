@@ -3,7 +3,7 @@
 #include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 
-#define VERSION_NUM "v0.1.2"
+#define VERSION_NUM "v0.2.0"
 #define MODNAME "Holocure Archipelago Mod " VERSION_NUM
 
 #define SOME_ENUM(DO) \
@@ -115,6 +115,16 @@
 	DO(reward) \
 	DO(shopMode) \
 	DO(shopItems) \
+	DO(itemArray) \
+	DO(rodArray) \
+	DO(inventoryValue) \
+	DO(interacting) \
+	DO(pauseMenu) \
+	DO(cookConfirm) \
+	DO(displayingInventory) \
+	DO(inventorySelect) \
+	DO(inventoryID) \
+	DO(fanLetterID) \
 
 #define MAKE_ENUM(VAR) GML_ ## VAR,
 enum VariableNames
@@ -132,6 +142,7 @@ extern RValue GMLVarIndexMapGMLHash[1001];
 extern CInstance* globalInstance;
 extern YYTKInterface* g_ModuleInterface;
 extern YYRunnerInterface g_RunnerInterface;
+extern CallbackManagerInterface* callbackManagerInterfacePtr;
 
 extern TRoutine origStructGetFromHashFunc;
 extern TRoutine origStructSetFromHashFunc;
@@ -147,3 +158,10 @@ extern int objInputManagerIndex;
 extern int objAttackControllerIndex;
 extern int objPlayerManagerIndex;
 extern int objPlayerIndex;
+
+template<typename... Args>
+void LogPrint(AurieLogSeverity severity, const char* LogFormat, Args... args)
+{
+	callbackManagerInterfacePtr->LogToFile(MODNAME, LogFormat, args...);
+	DbgPrintEx(severity, LogFormat, args...);
+}
