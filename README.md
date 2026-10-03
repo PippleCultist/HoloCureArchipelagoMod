@@ -24,14 +24,15 @@ I have not used AI to write any code or contribute to this project. I cannot con
 - Running the game either using the executable or through Steam should now launch the mods as well
 ## Common Issues
 - If you deleted the mods folder and are seeing `Missing game executable`, you most likely didn't click `Uninstall Aurie` in AurieManager before deleting the folder. To fix this issue, uninstall Aurie through AurieManager.
+- If you see an error like `Cannot load module ... HoloCureArchipelagoMod.dll ... (AURIE_EXTERNAL_ERROR)`, then check to make sure you have the latest version of the mod and that you put APCpp.dll in the same folder as HoloCure.exe.
 ## Before Playing
-Make sure to make a backup of `AppData\Local\HoloCure\save_n.dat`, `AppData\Local\HoloCure\save.dat`, `AppData\Local\HoloCure\backup_save_n.dat`, and `AppData\Local\HoloCure\backup_save.dat` if they exist. Whenever playing a new archipelago game, make sure to delete `AppData\Local\HoloCure\ArchipelagoSave.dat` to have a clean start.
+Make sure to make a backup of `AppData\Local\HoloCure\save_n.dat`, `AppData\Local\HoloCure\save.dat`, `AppData\Local\HoloCure\backup_save_n.dat`, and `AppData\Local\HoloCure\backup_save.dat` if they exist.
 
 ## How to play
 
 First, you need a room to connect to. For this, you or someone you know has to generate a game.  
 This will not be explained here,
-but you can check the [Archipelago Setup Guide](/tutorial/Archipelago/setup_en#generating-a-game).
+but you can check the [Archipelago Setup Guide](https://github.com/PippleCultist/HoloCureArchipelagoMod/wiki/Setting-up-an-apworld).
 
 You also need to have [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases/latest) installed
 and the [The HoloCure apworld](https://github.com/PippleCultist/HoloCureArchipelagoMod/releases) installed into Archipelago.
