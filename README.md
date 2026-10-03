@@ -14,7 +14,7 @@ I have not used AI to write any code or contribute to this project. I cannot con
     - The latest version of Aurie is moving away from AurieManager and is instead patching the game to run the mods. This has the benefit of not requiring admin privileges anymore and easily disabling mods by deleting the mods folder or replacing the original exe without crashing.
 # Normal installation steps
 - Download `HoloCureArchipelagoMod.dll`, `APCpp.dll`, and `CallbackManagerMod.dll` from the latest version of the mod https://github.com/PippleCultist/HoloCureArchipelagoMod/releases
-- Download `AurieInstaller.exe` from the latest version of Aurie https://github.com/AurieFramework/Aurie/releases
+- Download `AurieInstaller.exe` from the latest version of Aurie (If it's not in the latest release, use the newest one that has it) https://github.com/AurieFramework/Aurie/releases
 - Launch `AurieInstaller.exe`, click `Find my game!`, and select `HoloCure.exe`
     - You can find `HoloCure.exe` through Steam by clicking `Browse local files`
 - Click `Confirm Version`
