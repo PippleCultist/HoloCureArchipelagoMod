@@ -60,6 +60,22 @@ class HoloCureWorld(World):
 	# This defaults to "Menu", but you can change it by overriding origin_region_name.
 	origin_region_name = "Menu"
 
+	def interpret_slot_data(self, slot_data: dict[str, Any]) -> None:
+		from .rules import is_stage_enabled, is_in_hololive_member_whitelist
+		stage = self.get_region("Stage")
+		grindy_stage = self.get_region("Grindy Stage")
+		for count in range(len(stage.locations), 0, -1):
+			if stage.locations[count - 1].address is not None and not is_in_hololive_member_whitelist(self, location_data[stage.locations[count - 1].address - 1].character_name_list):
+				stage.pop(count - 1)
+		for count in range(len(grindy_stage.locations), 0, -1):
+			if grindy_stage.locations[count - 1].address is not None and not is_in_hololive_member_whitelist(self, location_data[grindy_stage.locations[count - 1].address - 1].character_name_list):
+				grindy_stage.pop(count - 1)
+
+	def generate_early(self) -> None:
+		if not getattr(self.multiworld, "generation_is_fake", False):
+			random_char_list = self.random.sample(list(self.options.hololive_member_whitelist.value), max(0, len(self.options.hololive_member_whitelist.value) - self.options.item_pool_hololive_member_count))
+			[self.options.hololive_member_whitelist.value.remove(curChar) for curChar in random_char_list]
+
 	# Our world class must have certain functions ("steps") that get called during generation.
 	# The main ones are: create_regions, set_rules, create_items.
 	# For better structure and readability, we put each of these in their own file.

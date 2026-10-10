@@ -285,7 +285,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
 	"Material Find Shop Upgrade": ItemClassification.useful,
 	"Stamps Shop Upgrade": ItemClassification.progression,
 	"Enchantments Shop Upgrade": ItemClassification.useful,
-	"Fandom Shop Upgrade": ItemClassification.useful,
+	"Fandom Shop Upgrade": ItemClassification.progression,
 	"Fan Letters Shop Upgrade": ItemClassification.progression,
 	"Max HP Progressive Shop Upgrade": ItemClassification.progression,
 	"ATK Progressive Shop Upgrade": ItemClassification.progression,
@@ -691,12 +691,12 @@ def create_all_items(world: HoloCureWorld) -> None:
 		]
 		itempool += holo_house_items
 
-	start_char_list = world.random.sample(characters, min(5, len(characters)))
+	start_char_list = world.random.sample(characters, min(world.options.starting_hololive_member_count, len(characters)))
 	[world.push_precollected(curItem) for curItem in start_char_list]
 
 	if is_stage_enabled(world):
-		start_weapon_list = world.random.sample(weapons, 7)
-		start_items_list = world.random.sample(items, 9)
+		start_weapon_list = world.random.sample(weapons, world.options.starting_weapon_count)
+		start_items_list = world.random.sample(items, world.options.starting_item_count)
 		[world.push_precollected(curItem) for curItem in start_weapon_list]
 		[world.push_precollected(curItem) for curItem in start_items_list]
 		world.push_precollected(world.create_item("Progressive Stage"))

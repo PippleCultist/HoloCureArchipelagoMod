@@ -114,6 +114,42 @@ class HololiveMemberWhitelist(OptionSet):
 	"Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare",
 	"Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"})
 
+class ItemPoolHololiveMemberCount(Range):
+	"""
+	The amount of hololive members in the item pool
+	"""
+	display_name = "Item Pool Hololive Member Count"
+	range_start = 1
+	range_end = 47
+	default = 47
+
+class StartingHololiveMemberCount(Range):
+	"""
+	The amount of hololive members you start with
+	"""
+	display_name = "Starting Hololive Member Count"
+	range_start = 1
+	range_end = 47
+	default = 1
+
+class StartingWeaponCount(Range):
+	"""
+	The amount of weapons you start with
+	"""
+	display_name = "Starting Weapon Count"
+	range_start = 1
+	range_end = 17
+	default = 7
+
+class StartingItemCount(Range):
+	"""
+	The amount of items you start with
+	"""
+	display_name = "Starting Item Count"
+	range_start = 1
+	range_end = 37
+	default = 9
+
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -126,13 +162,18 @@ class HoloCureOptions(PerGameCommonOptions):
 	hololive_member_whitelist: HololiveMemberWhitelist
 	hololive_member_goal: HololiveMemberGoal
 	achievement_goal: AchievementGoal
+	item_pool_hololive_member_count: ItemPoolHololiveMemberCount
+	starting_hololive_member_count: StartingHololiveMemberCount
+	starting_weapon_count: StartingWeaponCount
+	starting_item_count: StartingItemCount
 
 
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
 	OptionGroup(
 		"Gameplay Options",
-		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberWhitelist, HololiveMemberGoal, AchievementGoal],
+		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberWhitelist, HololiveMemberGoal, AchievementGoal,
+		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount],
 	),
 ]
 

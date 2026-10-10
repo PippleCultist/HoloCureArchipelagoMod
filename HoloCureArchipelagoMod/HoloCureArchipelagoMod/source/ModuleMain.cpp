@@ -297,8 +297,6 @@ EXPORTED AurieStatus ModuleInitialize(
 	IN const fs::path& ModulePath
 )
 {
-	// TODO: See if the holocure client can be integrated with archipelago directly
-
 	// TODO: Add collab/super collab as checks
 	// TODO: Find a way to integrate gacha
 	// TODO: Clean up rules
