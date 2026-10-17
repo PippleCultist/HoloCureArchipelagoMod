@@ -23,7 +23,7 @@ extern std::unordered_map<goalIndexEnum, std::unordered_set<locationIndexEnum>> 
 extern std::unordered_set<locationIndexEnum> holoHouseRandomizationLocations;
 extern std::unordered_map<itemIndexEnum, std::string> holoHouseItemToIDMap;
 extern std::unordered_set<locationIndexEnum> enemyCheckLocations;
-extern std::unordered_set<std::string> hololiveMemberWhiteList;
+extern std::unordered_set<std::string> hololiveMemberIncludeList;
 extern std::map<locationIndexEnum, std::vector<std::string>> locationToCharacterNameMap;
 
 extern std::string apPlayerName;
@@ -36,6 +36,8 @@ extern bool is2xStageTimer;
 extern int hololiveMemberGoal;
 extern int achievementGoal;
 extern int endGoal;
+extern bool isLocationHintEnabled;
+extern int enhancementLevel;
 
 std::random_device rd;
 std::default_random_engine randomGenerator(rd());
@@ -51,6 +53,7 @@ int locationHintTimer = 300;
 bool hasLoadedSave = false;
 int serverSaveIDRequestTimer = -1;
 int serverSaveID = 0;
+bool isLoadingAPSave = false;
 AP_GetServerDataRequest saveIDRequest;
 
 void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
@@ -60,7 +63,7 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 
 	if (AP_GetConnectionStatus() == AP_ConnectionStatus::Authenticated)
 	{
-		if (locationItemHintMap.empty())
+		if (isLocationHintEnabled && locationItemHintMap.empty())
 		{
 			locationHintTimer++;
 			if (locationHintTimer >= 300)
@@ -85,19 +88,19 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 					{
 						continue;
 					}
-					if (!hololiveMemberWhiteList.empty() && hololiveMemberWhiteList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
+					if (!hololiveMemberIncludeList.empty() && hololiveMemberIncludeList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
 					{
-						bool isInWhiteList = false;
+						bool isInIncludeList = false;
 						for (auto& curCharName : locationToCharacterNameMap[locationPair.first])
 						{
-							if (hololiveMemberWhiteList.contains(curCharName))
+							if (hololiveMemberIncludeList.contains(curCharName))
 							{
-								isInWhiteList = true;
+								isInIncludeList = true;
 								break;
 							}
 						}
 
-						if (!isInWhiteList)
+						if (!isInIncludeList)
 						{
 							continue;
 						}
@@ -178,11 +181,9 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 						if (result.ToBoolean())
 						{
 							loggingCallback(std::format("Loading save {}", apSaveName));
-							RValue** args = new RValue * [1];
-							RValue saveName = apSaveName.c_str();
-							args[0] = &saveName;
-							origNewDSMapMapSecureLoadScript(Self, nullptr, result, 1, args);
-							g_ModuleInterface->CallBuiltin("variable_global_set", { "PlayerSave", result });
+							isLoadingAPSave = true;
+							origLoadPlayerSaveScript(Self, nullptr, result, 0, nullptr);
+							isLoadingAPSave = false;
 						}
 						else
 						{
@@ -280,6 +281,12 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 				else
 				{
 					curObtainedItems[itemID]++;
+				}
+				if (itemID == itemIndexEnum_EnhancementProgressiveShopUpgrade)
+				{
+					enhancementLevel = curObtainedItems[itemID];
+					RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
+					g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, shopToIDMap[itemID].c_str(), enhancementLevel });
 				}
 				RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 				RValue archipelagoItems = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "archipelagoItems" });
@@ -435,7 +442,7 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 						}
 						g_ModuleInterface->CallBuiltin("struct_set", { AP_unlockedFarm, holoHouseItemToIDMap[itemID].c_str(), true});
 					}
-					else if (itemID >= itemIndexEnum_ProgressiveRod && itemID <= itemIndexEnum_ProgressivePickaxe)
+					else if (itemID >= itemIndexEnum_ProgressiveRod && itemID <= itemIndexEnum_ProgressivePrism)
 					{
 						switch (itemID)
 						{
@@ -455,6 +462,17 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 								g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "usingPick", curObtainedItems[itemID] });
 								break;
 							}
+							case itemIndexEnum_ProgressivePrism:
+							{
+								RValue AP_unlockedPrism = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "AP_unlockedPrism" });
+								if (AP_unlockedPrism.m_Kind == VALUE_UNDEFINED)
+								{
+									AP_unlockedPrism = g_ModuleInterface->CallBuiltin("array_create", { 6 });
+									g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "AP_unlockedPrism", AP_unlockedPrism });
+								}
+								AP_unlockedPrism[curObtainedItems[itemID] - 1] = true;
+								break;
+							}
 						}
 					}
 					hasUpdated = true;
@@ -471,8 +489,16 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 	renderImguiWindow(Self);
 }
 
+bool isInSelectChar = false;
+
+void CharSelectCreateBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
+{
+	isInSelectChar = true;
+}
+
 void CharSelectCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
+	isInSelectChar = false;
 	CInstance* Self = std::get<0>(Args);
 	RValue charInfo = getInstanceVariable(Self, GML_characterInfo);
 	RValue charListByGen = getInstanceVariable(Self, GML_charListByGen);
@@ -503,6 +529,16 @@ void CharSelectCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValu
 		charInfo[itemIndexEnum_MoriCalliope - itemIndexEnum_AmeliaWatson] = empty;
 		charListByGen[0][itemIndexEnum_MoriCalliope - itemIndexEnum_AmeliaWatson] = empty;
 	}
+}
+
+void CharSelectDrawBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
+{
+	isInSelectChar = true;
+}
+
+void CharSelectDrawAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
+{
+	isInSelectChar = false;
 }
 
 void AchievementsOther10After(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)

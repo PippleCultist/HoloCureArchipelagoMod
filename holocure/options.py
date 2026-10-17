@@ -86,8 +86,8 @@ class EnableUniqueEnemyChecks(Toggle):
 
 	display_name = "Enable Unique Enemy Checks"
 
-class HololiveMemberWhitelist(OptionSet):
-	"""Only allow Hololive member as showing up as items
+class HololiveMemberIncludeList(OptionSet):
+	"""Always include these Hololive Members
 	
 	Amelia Watson, Gawr Gura, Ninomae Inanis, Takanashi Kiara, Mori Calliope, Hakos Baelz, Ouro Kronii, Ceres Fauna, Nanashi Mumei
 	Tsukumo Sana, IRyS, Shirakami Fubuki, Ookami Mio, Nekomata Okayu, Inugami Korone, Tokino Sora, AZki, Roboco-san, Hoshimachi Suisei
@@ -98,7 +98,7 @@ class HololiveMemberWhitelist(OptionSet):
 	"""
 
 	rich_text_doc = True
-	display_name = "Hololive Member Whitelist"
+	display_name = "Hololive Member Include List"
 	valid_keys = ["Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz",
 	"Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio",
 	"Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko",
@@ -106,13 +106,29 @@ class HololiveMemberWhitelist(OptionSet):
 	"Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine",
 	"Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare",
 	"Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"]
-	default = frozenset({"Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz",
+	default = frozenset({})
+
+class HololiveMemberExcludeList(OptionSet):
+	"""Always exclude these Hololive Members
+	
+	Amelia Watson, Gawr Gura, Ninomae Inanis, Takanashi Kiara, Mori Calliope, Hakos Baelz, Ouro Kronii, Ceres Fauna, Nanashi Mumei
+	Tsukumo Sana, IRyS, Shirakami Fubuki, Ookami Mio, Nekomata Okayu, Inugami Korone, Tokino Sora, AZki, Roboco-san, Hoshimachi Suisei
+	Sakura Miko, Akai Haato, Yozora Mel, Natsuiro Matsuri, Aki Rosenthal, Yuzuki Choco, Oozora Subaru, Murasaki Shion, Nakiri Ayame
+	Minato Aqua, Moona Hoshinova, Airani Iofifteen, Ayunda Risu, Kureiji Ollie, Pavolia Reine, Anya Melfissa, Kobo Kanaeru
+	Kaela Kovalskia, Vestia Zeta, Usada Pekora, Shirogane Noel, Shiranui Flare, Houshou Marine, Kiryu Coco, Amane Kanata, Tsunomaki Watame
+	Tokoyami Towa, Himemori Luna
+	"""
+
+	rich_text_doc = True
+	display_name = "Hololive Member Exclude List"
+	valid_keys = ["Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz",
 	"Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio",
 	"Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko",
 	"Akai Haato", "Yozora Mel", "Natsuiro Matsuri", "Aki Rosenthal", "Yuzuki Choco", "Oozora Subaru", "Murasaki Shion",
 	"Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine",
 	"Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare",
-	"Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"})
+	"Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"]
+	default = frozenset({})
 
 class ItemPoolHololiveMemberCount(Range):
 	"""
@@ -159,7 +175,8 @@ class HoloCureOptions(PerGameCommonOptions):
 	enable_stage: EnableStage
 	enable_holo_house_randomization: EnableHoloHouseRandomization
 	enable_unique_enemy_checks: EnableUniqueEnemyChecks
-	hololive_member_whitelist: HololiveMemberWhitelist
+	hololive_member_include_list: HololiveMemberIncludeList
+	hololive_member_exclude_list: HololiveMemberExcludeList
 	hololive_member_goal: HololiveMemberGoal
 	achievement_goal: AchievementGoal
 	item_pool_hololive_member_count: ItemPoolHololiveMemberCount
@@ -172,7 +189,7 @@ class HoloCureOptions(PerGameCommonOptions):
 option_groups = [
 	OptionGroup(
 		"Gameplay Options",
-		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberWhitelist, HololiveMemberGoal, AchievementGoal,
+		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberIncludeList, HololiveMemberExcludeList, HololiveMemberGoal, AchievementGoal,
 		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount],
 	),
 ]

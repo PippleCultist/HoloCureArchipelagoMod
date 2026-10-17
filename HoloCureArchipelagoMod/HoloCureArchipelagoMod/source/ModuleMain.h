@@ -3,7 +3,7 @@
 #include <YYToolkit/YYTK_Shared.hpp>
 #include <CallbackManager/CallbackManagerInterface.h>
 
-#define VERSION_NUM "v0.2.1"
+#define VERSION_NUM "v0.2.2"
 #define MODNAME "Holocure Archipelago Mod " VERSION_NUM
 
 #define SOME_ENUM(DO) \
@@ -147,12 +147,14 @@ extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern TRoutine origStructGetFromHashFunc;
 extern TRoutine origStructSetFromHashFunc;
 extern TRoutine origFileExistsFunc;
+extern TRoutine origDSMapFindValueFunc;
 
 extern PFUNC_YYGMLScript origUnlockThingScript;
 extern PFUNC_YYGMLScript origNewDSMapMapSecureSaveScript;
 extern PFUNC_YYGMLScript origNewDSMapMapSecureLoadScript;
 extern PFUNC_YYGMLScript origSavePlayerSaveScript;
 extern PFUNC_YYGMLScript origLevelPlayerStatUpScript;
+extern PFUNC_YYGMLScript origLoadPlayerSaveScript;
 
 extern int objInputManagerIndex;
 extern int objAttackControllerIndex;

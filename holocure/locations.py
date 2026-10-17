@@ -545,7 +545,7 @@ def create_all_locations(world: HoloCureWorld) -> None:
 
 
 def create_regular_locations(world: HoloCureWorld) -> None:
-	from .rules import is_stage_enabled, is_holo_house_enabled, is_in_hololive_member_whitelist
+	from .rules import is_stage_enabled, is_holo_house_enabled, is_in_hololive_member_list
 	# Finally, we need to put the Locations ("checks") into their regions.
 	# Once again, before we do anything, we can grab our regions we created by using world.get_region()
 	menu = world.get_region("Menu")
@@ -585,7 +585,7 @@ def create_regular_locations(world: HoloCureWorld) -> None:
 	timemode_locations = {}
 
 	for cur_location_data in location_data:
-		if not is_in_hololive_member_whitelist(world, cur_location_data.character_name_list):
+		if not is_in_hololive_member_list(world, cur_location_data.character_name_list):
 			continue
 		for cur_count in range(cur_location_data.count):
 			if cur_location_data.count == 1:
@@ -670,12 +670,12 @@ def create_regular_locations(world: HoloCureWorld) -> None:
 
 
 def create_events(world: HoloCureWorld) -> None:
-	from .rules import is_stage_enabled, is_in_hololive_member_whitelist
+	from .rules import is_stage_enabled, is_in_hololive_member_list
 	stage = world.get_region("Stage")
 	if is_stage_enabled(world):
 		char_name_list = ["Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz", "Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio", "Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko", "Akai Haato", "Yozora Mel", "Natsuiro Matsuri", "Aki Rosenthal", "Yuzuki Choco", "Oozora Subaru", "Murasaki Shion", "Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine", "Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare", "Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"]
 		for cur_name in char_name_list:
-			if is_in_hololive_member_whitelist(world, [cur_name]):
+			if is_in_hololive_member_list(world, [cur_name]):
 				stage.add_event(cur_name + " Stage", "Clear Stage Count", CanReachLocation("Clear a Stage with " + cur_name), HoloCureLocation, HoloCureItem)
 
 	# Sometimes, the player may perform in-game actions that allow them to progress which are not related to Items.

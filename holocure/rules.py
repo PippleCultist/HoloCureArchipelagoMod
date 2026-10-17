@@ -20,15 +20,15 @@ def is_stage_enabled(world: HoloCureWorld) -> bool:
 def is_holo_house_enabled(world: HoloCureWorld) -> bool:
 	return world.options.enable_holo_house_randomization or not world.options.enable_stage
 
-def is_in_hololive_member_whitelist(world: HoloCureWorld, name_list: list[str]) -> bool:
+def is_in_hololive_member_list(world: HoloCureWorld, name_list: list[str]) -> bool:
 	if not name_list:
 		return True
-	if not world.options.hololive_member_whitelist.value:
+	if not world.options.hololive_member_include_list.value:
 		return True
 	if "All" in name_list:
-		return len(world.options.hololive_member_whitelist.value) == 47
+		return len(world.options.hololive_member_include_list.value) == 47
 	for name in name_list:
-		if name in world.options.hololive_member_whitelist.value:
+		if name in world.options.hololive_member_include_list.value:
 			return True
 	return False
 
@@ -103,7 +103,7 @@ def set_all_location_rules(world: HoloCureWorld) -> None:
 				continue
 			if not is_holo_house_enabled(world) and (cur_location_data.region_name == "HoloHouse" or cur_location_data.region_name == "Grindy HoloHouse"):
 				continue
-			if not is_in_hololive_member_whitelist(world, cur_location_data.character_name_list):
+			if not is_in_hololive_member_list(world, cur_location_data.character_name_list):
 				continue
 			world.set_rule(world.get_location(cur_location_data.location_name), cur_location_data.required_items)
 	# Location rules work no differently from Entrance rules.

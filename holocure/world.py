@@ -9,6 +9,13 @@ from worlds.AutoWorld import World
 from . import items, locations, regions, rules, web_world
 from . import options as holocure_options  # rename due to a name conflict with World.options
 from .locations import location_data
+from settings import get_settings
+
+import typing
+import os
+import settings
+
+from typing import ClassVar
 
 # APQuest will go through all the parts of the world api one step at a time,
 # with many examples and comments across multiple files.
@@ -16,6 +23,11 @@ from .locations import location_data
 # we also have this document specifying the entire world api:
 # https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/world%20api.md
 
+class HoloCureSettings(settings.Group):
+	class EnableLocationHints(settings.Bool):
+		"""Enable to allow location hints to be freely viewable by the player"""
+
+	enable_location_hints: typing.Union[EnableLocationHints, bool] = False
 
 # The world class is the heart and soul of an apworld implementation.
 # It holds all the data and functions required to build the world and submit it to the multiworld generator.
@@ -33,6 +45,9 @@ class HoloCureWorld(World):
 
 	# You must override the "game" field to say the name of the game.
 	game = "HoloCure"
+	settings_key = "holocure_options"
+	settings: ClassVar[HoloCureSettings]
+	ut_can_gen_without_yaml = True
 
 	# The WebWorld is a definition class that governs how this world will be displayed on the website.
 	web = web_world.HoloCureWebWorld()
@@ -60,21 +75,19 @@ class HoloCureWorld(World):
 	# This defaults to "Menu", but you can change it by overriding origin_region_name.
 	origin_region_name = "Menu"
 
-	def interpret_slot_data(self, slot_data: dict[str, Any]) -> None:
-		from .rules import is_stage_enabled, is_in_hololive_member_whitelist
-		stage = self.get_region("Stage")
-		grindy_stage = self.get_region("Grindy Stage")
-		for count in range(len(stage.locations), 0, -1):
-			if stage.locations[count - 1].address is not None and not is_in_hololive_member_whitelist(self, location_data[stage.locations[count - 1].address - 1].character_name_list):
-				stage.pop(count - 1)
-		for count in range(len(grindy_stage.locations), 0, -1):
-			if grindy_stage.locations[count - 1].address is not None and not is_in_hololive_member_whitelist(self, location_data[grindy_stage.locations[count - 1].address - 1].character_name_list):
-				grindy_stage.pop(count - 1)
-
 	def generate_early(self) -> None:
 		if not getattr(self.multiworld, "generation_is_fake", False):
-			random_char_list = self.random.sample(list(self.options.hololive_member_whitelist.value), max(0, len(self.options.hololive_member_whitelist.value) - self.options.item_pool_hololive_member_count))
-			[self.options.hololive_member_whitelist.value.remove(curChar) for curChar in random_char_list]
+			char_list = ["Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz",
+	"Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio",
+	"Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko",
+	"Akai Haato", "Yozora Mel", "Natsuiro Matsuri", "Aki Rosenthal", "Yuzuki Choco", "Oozora Subaru", "Murasaki Shion",
+	"Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine",
+	"Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare",
+	"Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"]
+			[char_list.remove(curChar) for curChar in self.options.hololive_member_include_list.value]
+			[char_list.remove(curChar) for curChar in self.options.hololive_member_exclude_list.value]
+			random_char_list = self.random.sample(char_list, max(0, self.options.item_pool_hololive_member_count - len(self.options.hololive_member_include_list.value)))
+			[self.options.hololive_member_include_list.value.add(curChar) for curChar in random_char_list]
 
 	# Our world class must have certain functions ("steps") that get called during generation.
 	# The main ones are: create_regions, set_rules, create_items.
@@ -107,6 +120,9 @@ class HoloCureWorld(World):
 	# slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.
 	def fill_slot_data(self) -> Mapping[str, Any]:
 		# If you need access to the player's chosen options on the client side, there is a helper for that.
-		return self.options.as_dict(
-			"end_goal", "grindy_checks", "enable_stage", "enable_holo_house_randomization", "enable_unique_enemy_checks", "hololive_member_whitelist", "hololive_member_goal", "achievement_goal"
+		slot_data_dict = self.options.as_dict(
+			"end_goal", "grindy_checks", "enable_stage", "enable_holo_house_randomization", "enable_unique_enemy_checks", "hololive_member_include_list", "hololive_member_goal", "achievement_goal"
 		)
+		settings: HoloCureSettings = get_settings().holocure_options
+		slot_data_dict["enable_location_hints"] = settings["enable_location_hints"]
+		return slot_data_dict

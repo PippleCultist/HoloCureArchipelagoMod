@@ -165,6 +165,7 @@ ITEM_NAME_TO_ID = {
 	"Progressive Rod": 4100,
 	"Progressive Axe": 4101,
 	"Progressive Pickaxe": 4102,
+	"Progressive Prism": 4103,
 }
 # Items should have a defined default classification.
 # In our case, we will make a dictionary from item name to classification.
@@ -320,6 +321,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
 	"Progressive Rod": ItemClassification.progression,
 	"Progressive Axe": ItemClassification.progression,
 	"Progressive Pickaxe": ItemClassification.progression,
+	"Progressive Prism": ItemClassification.useful,
 }
 
 
@@ -388,6 +390,12 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("Progressive Stage (Hard)"),
 		world.create_item("Progressive Stage (Hard)"),
 		world.create_item("Time Stage 1"),
+		world.create_item("Progressive Prism"),
+		world.create_item("Progressive Prism"),
+		world.create_item("Progressive Prism"),
+		world.create_item("Progressive Prism"),
+		world.create_item("Progressive Prism"),
+		world.create_item("Progressive Prism"),
 	]
 
 	character_names: list[str] = [
@@ -440,7 +448,7 @@ def create_all_items(world: HoloCureWorld) -> None:
 		"Himemori Luna",
 	]
 
-	characters: list[Item] = [world.create_item(character_name) for character_name in character_names if len(world.options.hololive_member_whitelist.value) == 0 or character_name in world.options.hololive_member_whitelist.value]
+	characters: list[Item] = [world.create_item(character_name) for character_name in character_names if len(world.options.hololive_member_include_list.value) == 0 or character_name in world.options.hololive_member_include_list.value]
 
 	weapons: list[Item] = [
 		world.create_item("Wamy Water"),

@@ -15,6 +15,7 @@ RValue GMLVarIndexMapGMLHash[1001];
 TRoutine origStructGetFromHashFunc;
 TRoutine origStructSetFromHashFunc;
 TRoutine origFileExistsFunc;
+TRoutine origDSMapFindValueFunc;
 
 CallbackManagerInterface* callbackManagerInterfacePtr = nullptr;
 YYTKInterface* g_ModuleInterface = nullptr;
@@ -27,6 +28,7 @@ PFUNC_YYGMLScript origNewDSMapMapSecureSaveScript = nullptr;
 PFUNC_YYGMLScript origNewDSMapMapSecureLoadScript = nullptr;
 PFUNC_YYGMLScript origSavePlayerSaveScript = nullptr;
 PFUNC_YYGMLScript origLevelPlayerStatUpScript = nullptr;
+PFUNC_YYGMLScript origLoadPlayerSaveScript = nullptr;
 
 CInstance* globalInstance = nullptr;
 
@@ -84,6 +86,11 @@ void initHooks()
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterBuiltinFunctionCallback(MODNAME, "file_delete", FileDeleteBefore, nullptr, nullptr)))
 	{
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "file_delete");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterBuiltinFunctionCallback(MODNAME, "ds_map_find_value", DsMapFindValueBefore, nullptr, &origDSMapFindValueFunc)))
+	{
+		LogPrint(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "ds_map_find_value");
 		return;
 	}
 
@@ -192,6 +199,11 @@ void initHooks()
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_Die@gml_Object_obj_Enemy_Create_0");
 		return;
 	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_LoadPlayerSave", nullptr, nullptr, &origLoadPlayerSaveScript)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_LoadPlayerSave");
+		return;
+	}
 
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_TitleScreen_Create_0", TitleScreenCreateBefore, nullptr)))
 	{
@@ -203,9 +215,14 @@ void initHooks()
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_InputManager_Step_0");
 		return;
 	}
-	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_CharSelect_Create_0", nullptr, CharSelectCreateAfter)))
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_CharSelect_Create_0", CharSelectCreateBefore, CharSelectCreateAfter)))
 	{
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_CharSelect_Create_0");
+		return;
+	}
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_CharSelect_Draw_0", CharSelectDrawBefore, CharSelectDrawAfter)))
+	{
+		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Object_obj_CharSelect_Draw_0");
 		return;
 	}
 	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterCodeEventCallback(MODNAME, "gml_Object_obj_Achievements_Other_10", nullptr, AchievementsOther10After)))

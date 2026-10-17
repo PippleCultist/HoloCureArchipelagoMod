@@ -170,6 +170,7 @@ enum itemIndexEnum
 	itemIndexEnum_ProgressiveRod = 4100,
 	itemIndexEnum_ProgressiveAxe,
 	itemIndexEnum_ProgressivePickaxe,
+	itemIndexEnum_ProgressivePrism,
 };
 
 enum locationIndexEnum

@@ -279,6 +279,7 @@ std::unordered_map<itemIndexEnum, std::string> itemToNameMap
 	{ itemIndexEnum_ProgressiveRod, "Progressive Rod" },
 	{ itemIndexEnum_ProgressiveAxe, "Progressive Axe" },
 	{ itemIndexEnum_ProgressivePickaxe, "Progressive Pickaxe" },
+	{ itemIndexEnum_ProgressivePrism, "Progressive Prism" },
 };
 
 std::unordered_set<locationIndexEnum> grindyLocations

@@ -306,11 +306,11 @@ RValue& ConfirmCkiaCreateAfter(CInstance* Self, CInstance* Other, RValue& Return
 			}
 		}
 	}
-	for (int i = 1; i < armorUnlockLen; i++)
+	for (int i = 0; i < armorUnlockLen; i++)
 	{
 		if (armorUnlock[i].ToBoolean())
 		{
-			locationIndexEnum locationIndex = static_cast<locationIndexEnum>(locationIndexEnum_MakeBasicPrism + i - 1);
+			locationIndexEnum locationIndex = static_cast<locationIndexEnum>(locationIndexEnum_MakeBasicPrism + i);
 			if (locationIndex > locationIndexEnum_MakeHololitePrism)
 			{
 				loggingCallback(std::format("Invalid Prism Check {}", static_cast<int>(locationIndex)));

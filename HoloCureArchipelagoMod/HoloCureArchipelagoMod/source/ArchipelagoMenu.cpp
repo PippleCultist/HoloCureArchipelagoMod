@@ -47,12 +47,13 @@ bool isGrindyChecksEnabled = false;
 bool isStageEnabled = false;
 bool isHoloHouseRandomizationEnabled = false;
 bool isUniqueEnemyCheckEnabled = false;
+bool isLocationHintEnabled = false;
 int hololiveMemberGoal = 1;
 int achievementGoal = 1;
 int endGoal = -1;
 
 std::unordered_set<locationIndexEnum> serverObtainedLocationSet;
-std::unordered_set<std::string> hololiveMemberWhiteList;
+std::unordered_set<std::string> hololiveMemberIncludeList;
 
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
@@ -292,6 +293,7 @@ bool isProgressionItem = false;
 bool isUsefulItem = false;
 bool isTrapItem = false;
 bool isOnlyShowGoal = false;
+int enhancementLevel = 0;
 
 void handleArchipelagoMenu(CInstance* Self)
 {
@@ -307,10 +309,13 @@ void handleArchipelagoMenu(CInstance* Self)
 		//	clipper.Begin(locationToNameMap.size());
 
 //		ImGui::Checkbox("Toggle Force Check", &isForceCheck);
-		ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
-		ImGui::Checkbox("Filter Progression Item", &isProgressionItem);
-		ImGui::Checkbox("Filter Useful Item", &isUsefulItem);
-		ImGui::Checkbox("Filter Trap Item", &isTrapItem);
+		if (isLocationHintEnabled)
+		{
+			ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
+			ImGui::Checkbox("Filter Progression Item", &isProgressionItem);
+			ImGui::Checkbox("Filter Useful Item", &isUsefulItem);
+			ImGui::Checkbox("Filter Trap Item", &isTrapItem);
+		}
 		ImGui::Checkbox("Only Show Goal Locations", &isOnlyShowGoal);
 		int itemBitFlag = (isProgressionItem ? 0b1 : 0) | (isUsefulItem ? 0b10 : 0) | (isTrapItem ? 0b100 : 0);
 		// TODO: Try to figure out a way to not need an extra loop for this. Maybe precalculate it somewhere?
@@ -334,12 +339,12 @@ void handleArchipelagoMenu(CInstance* Self)
 			{
 				continue;
 			}
-			if (!hololiveMemberWhiteList.empty() && hololiveMemberWhiteList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
+			if (!hololiveMemberIncludeList.empty() && hololiveMemberIncludeList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
 			{
 				bool isInWhiteList = false;
 				for (auto& curCharName : locationToCharacterNameMap[locationPair.first])
 				{
-					if (hololiveMemberWhiteList.contains(curCharName))
+					if (hololiveMemberIncludeList.contains(curCharName))
 					{
 						isInWhiteList = true;
 						break;
@@ -389,12 +394,12 @@ void handleArchipelagoMenu(CInstance* Self)
 				{
 					continue;
 				}
-				if (!hololiveMemberWhiteList.empty() && hololiveMemberWhiteList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
+				if (!hololiveMemberIncludeList.empty() && hololiveMemberIncludeList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
 				{
 					bool isInWhiteList = false;
 					for (auto& curCharName : locationToCharacterNameMap[locationPair.first])
 					{
-						if (hololiveMemberWhiteList.contains(curCharName))
+						if (hololiveMemberIncludeList.contains(curCharName))
 						{
 							isInWhiteList = true;
 							break;
@@ -457,6 +462,14 @@ void handleArchipelagoMenu(CInstance* Self)
 		for (auto& curItem : curObtainedItems)
 		{
 			ImGui::Text("%s %d", itemToNameMap[curItem.first].c_str(), curItem.second);
+			if (curItem.first == itemIndexEnum_EnhancementProgressiveShopUpgrade)
+			{
+				if (ImGui::SliderInt("Enhancement level", &enhancementLevel, 0, curItem.second))
+				{
+					RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
+					g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, shopToIDMap[curItem.first].c_str(), enhancementLevel });
+				}
+			}
 		}
 		ImGui::EndTabItem();
 	}
@@ -521,7 +534,7 @@ void itemReceiveCallback(int64_t itemID, bool isNotify)
 		// HoloHouse Farm
 		itemIndexReceiveQueue.push_back(itemIndexID);
 	}
-	else if (itemID >= itemIndexEnum_ProgressiveRod && itemID <= itemIndexEnum_ProgressivePickaxe)
+	else if (itemID >= itemIndexEnum_ProgressiveRod && itemID <= itemIndexEnum_ProgressivePrism)
 	{
 		// HoloHouse Forge
 		itemIndexReceiveQueue.push_back(itemIndexID);
@@ -689,15 +702,15 @@ void slotDataEnableUniqueEnemyChecksCallback(int slotData)
 	isUniqueEnemyCheckEnabled = slotData;
 }
 
-void slotDataHololiveMemberWhitelistCallback(std::string slotData)
+void slotDataHololiveMemberIncludeListCallback(std::string slotData)
 {
-	loggingCallback("Hololive Member Whitelist: " + slotData);
-	hololiveMemberWhiteList.clear();
-	nlohmann::json whiteList = nlohmann::json::parse(slotData);
-	int arrLen = whiteList.size();
+	loggingCallback("Hololive Member Include List: " + slotData);
+	hololiveMemberIncludeList.clear();
+	nlohmann::json includeList = nlohmann::json::parse(slotData);
+	int arrLen = includeList.size();
 	for (int i = 0; i < arrLen; i++)
 	{
-		hololiveMemberWhiteList.insert(whiteList[i].get<std::string>());
+		hololiveMemberIncludeList.insert(includeList[i].get<std::string>());
 	}
 }
 
@@ -711,6 +724,12 @@ void slotDataAchievementGoalCallback(int slotData)
 {
 	loggingCallback("Achievement Goal: " + std::to_string(slotData));
 	achievementGoal = slotData;
+}
+
+void slotDataEnableLocationHintsCallback(int slotData)
+{
+	loggingCallback("Enable Location Hints: " + std::to_string(slotData));
+	isLocationHintEnabled = slotData;
 }
 
 void initArchipelago()
@@ -729,9 +748,10 @@ void initArchipelago()
 	AP_RegisterSlotDataIntCallback("enable_stage", slotDataStageEnabledCallback);
 	AP_RegisterSlotDataIntCallback("enable_holo_house_randomization", slotDataEnableHoloHouseRandomizationCallback);
 	AP_RegisterSlotDataIntCallback("enable_unique_enemy_checks", slotDataEnableUniqueEnemyChecksCallback);
-	AP_RegisterSlotDataRawCallback("hololive_member_whitelist", slotDataHololiveMemberWhitelistCallback);
+	AP_RegisterSlotDataRawCallback("hololive_member_include_list", slotDataHololiveMemberIncludeListCallback);
 	AP_RegisterSlotDataIntCallback("hololive_member_goal", slotDataHololiveMemberGoalCallback);
 	AP_RegisterSlotDataIntCallback("achievement_goal", slotDataAchievementGoalCallback);
+	AP_RegisterSlotDataIntCallback("enable_location_hints", slotDataEnableLocationHintsCallback);
 
 	AP_SetLoggingCallback(loggingCallback);
 
