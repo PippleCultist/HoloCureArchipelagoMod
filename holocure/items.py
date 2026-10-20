@@ -566,8 +566,6 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("ATK Progressive Shop Upgrade"),
 		world.create_item("ATK Progressive Shop Upgrade"),
 		world.create_item("ATK Progressive Shop Upgrade"),
-		world.create_item("ATK Progressive Shop Upgrade"),
-		world.create_item("SPD Progressive Shop Upgrade"),
 		world.create_item("SPD Progressive Shop Upgrade"),
 		world.create_item("SPD Progressive Shop Upgrade"),
 		world.create_item("SPD Progressive Shop Upgrade"),
@@ -592,7 +590,6 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("Pick Up Range Progressive Shop Upgrade"),
 		world.create_item("Pick Up Range Progressive Shop Upgrade"),
 		world.create_item("Pick Up Range Progressive Shop Upgrade"),
-		world.create_item("Haste Up Progressive Shop Upgrade"),
 		world.create_item("Haste Up Progressive Shop Upgrade"),
 		world.create_item("Haste Up Progressive Shop Upgrade"),
 		world.create_item("Haste Up Progressive Shop Upgrade"),
@@ -653,6 +650,17 @@ def create_all_items(world: HoloCureWorld) -> None:
 		world.create_item("Marketing Up Progressive Shop Upgrade"),
 		world.create_item("Marketing Up Progressive Shop Upgrade"),
 	]
+
+	if not world.options.enable_easier_start:
+		shop += [
+			world.create_item("ATK Progressive Shop Upgrade"),
+			world.create_item("SPD Progressive Shop Upgrade"),
+			world.create_item("Haste Up Progressive Shop Upgrade"),
+		]
+	else:
+		world.push_precollected(world.create_item("ATK Progressive Shop Upgrade"))
+		world.push_precollected(world.create_item("SPD Progressive Shop Upgrade"))
+		world.push_precollected(world.create_item("Haste Up Progressive Shop Upgrade"))
 
 	if is_holo_house_enabled(world):
 		if not is_stage_enabled(world):

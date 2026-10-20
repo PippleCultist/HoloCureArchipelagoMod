@@ -44,7 +44,7 @@ class HololiveMemberGoal(Range):
 
 class AchievementGoal(Range):
 	"""
-	The amount of unique hololive member clears needed for the goal
+	The amount of unique achievements needed for the goal
 	"""
 	display_name = "Achievement Goal"
 	range_start = 1
@@ -166,6 +166,13 @@ class StartingItemCount(Range):
 	range_end = 37
 	default = 9
 
+class EnableEasierStart(Toggle):
+	"""
+	Gives 1 attack, speed, and haste upgrade at the beginning
+	"""
+
+	display_name = "Enable Easier Start"
+
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -183,6 +190,7 @@ class HoloCureOptions(PerGameCommonOptions):
 	starting_hololive_member_count: StartingHololiveMemberCount
 	starting_weapon_count: StartingWeaponCount
 	starting_item_count: StartingItemCount
+	enable_easier_start: EnableEasierStart
 
 
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
@@ -190,7 +198,7 @@ option_groups = [
 	OptionGroup(
 		"Gameplay Options",
 		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberIncludeList, HololiveMemberExcludeList, HololiveMemberGoal, AchievementGoal,
-		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount],
+		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount, EnableEasierStart],
 	),
 ]
 

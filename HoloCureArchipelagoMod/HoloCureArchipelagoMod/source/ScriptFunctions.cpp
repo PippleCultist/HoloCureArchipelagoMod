@@ -17,7 +17,8 @@ extern bool hasLoadedSave;
 extern std::string apPlayerName;
 extern std::unordered_map<std::string, locationIndexEnum> itemNameToLocationMap;
 extern std::unordered_map<std::string, locationIndexEnum> enemyIDToLocationMap;
-extern std::unordered_map<itemIndexEnum, int> curObtainedItems;
+extern std::map<itemIndexEnum, int> curObtainedItems;
+extern bool enableDebugLogs;
 
 std::unordered_set<locationIndexEnum> obtainedLocationSet;
 
@@ -34,6 +35,10 @@ RValue& CanSubmitScoreFuncBefore(CInstance* Self, CInstance* Other, RValue& Retu
 
 RValue& DoAchievementBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "DoAchievementBefore");
+	}
 	RValue achievementsMap = g_ModuleInterface->CallBuiltin("variable_global_get", { "achievementsMap" });
 	if (achievementsMap.m_Kind != VALUE_UNDEFINED)
 	{
@@ -66,6 +71,10 @@ RValue& UnlockThingBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue
 
 RValue& newDSMapSecureLoadBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "newDSMapSecureLoadBefore");
+	}
 	if (Args[0]->ToString().compare("save_n.dat") == 0)
 	{
 		RValue** args = new RValue * [1];
@@ -80,6 +89,10 @@ RValue& newDSMapSecureLoadBefore(CInstance* Self, CInstance* Other, RValue& Retu
 
 RValue& newDSMapSecureSaveBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "newDSMapSecureSaveBefore");
+	}
 	if (Args[1]->ToString().compare("save_n.dat") == 0)
 	{
 		if (!hasLoadedSave)
@@ -151,6 +164,10 @@ RValue& RefundPlayerStatUpShopCreateBefore(CInstance* Self, CInstance* Other, RV
 
 RValue& LevelPlayerStatUpShopCreateBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "LevelPlayerStatUpShopCreateBefore");
+	}
 	std::string removePrefixStr = Args[0]->ToString().substr(3);
 	auto find = shopIDToIndexMap.find(removePrefixStr);
 	if (find != shopIDToIndexMap.end())
@@ -186,6 +203,10 @@ RValue& InitRodsBloopCreateAfter(CInstance* Self, CInstance* Other, RValue& Retu
 
 RValue& InitSoilAndSeedsNemuCreateAfter(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "InitSoilAndSeedsNemuCreateAfter");
+	}
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	RValue AP_unlockedFarm = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "AP_unlockedFarm" });
 	RValue itemArray = getInstanceVariable(Self, GML_itemArray);
@@ -202,6 +223,10 @@ RValue& InitSoilAndSeedsNemuCreateAfter(CInstance* Self, CInstance* Other, RValu
 
 RValue& InventoryAddAfter(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "InventoryAddAfter");
+	}
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	RValue inventory = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "inventory" });
 	int inventoryLen = g_ModuleInterface->CallBuiltin("array_length", { inventory }).ToInt32();
@@ -236,6 +261,10 @@ RValue& InventoryAddAfter(CInstance* Self, CInstance* Other, RValue& ReturnValue
 
 RValue& ConfirmCookingPotCreateBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "ConfirmCookingPotCreateBefore");
+	}
 	RValue interacting = getInstanceVariable(Self, GML_interacting);
 	RValue canControl = getInstanceVariable(Self, GML_canControl);
 	if (interacting.ToBoolean() && canControl.ToBoolean())
@@ -267,6 +296,10 @@ RValue& ConfirmCookingPotCreateBefore(CInstance* Self, CInstance* Other, RValue&
 
 RValue& ConfirmCkiaCreateAfter(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "ConfirmCkiaCreateAfter");
+	}
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "usingAxe", curObtainedItems[itemIndexEnum_ProgressiveAxe] });
 	g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, "usingPick", curObtainedItems[itemIndexEnum_ProgressivePickaxe] });
@@ -326,6 +359,10 @@ RValue& ConfirmCkiaCreateAfter(CInstance* Self, CInstance* Other, RValue& Return
 
 RValue& CheckLevelingForgeGatherCreateAfter(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "CheckLevelingForgeGatherCreateAfter");
+	}
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	int woodLevel = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "woodLevel" }).ToInt32();
 	int mineLevel = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "mineLevel" }).ToInt32();
@@ -358,6 +395,10 @@ RValue& CheckLevelingForgeGatherCreateAfter(CInstance* Self, CInstance* Other, R
 
 RValue& DieEnemyCreateBefore(CInstance* Self, CInstance* Other, RValue& ReturnValue, int numArgs, RValue** Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "DieEnemyCreateBefore");
+	}
 	RValue fanLetterID = getInstanceVariable(Self, GML_fanLetterID);
 	auto find = enemyIDToLocationMap.find(fanLetterID.ToString());
 

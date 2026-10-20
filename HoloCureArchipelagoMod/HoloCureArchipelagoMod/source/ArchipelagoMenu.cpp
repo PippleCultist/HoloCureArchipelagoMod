@@ -30,7 +30,7 @@ ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 std::vector<std::string> apLogList;
 
-std::unordered_map<itemIndexEnum, int> curObtainedItems;
+std::map<itemIndexEnum, int> curObtainedItems;
 
 std::deque<itemIndexEnum> itemIndexReceiveQueue;
 
@@ -186,6 +186,7 @@ void handleLogMenu()
 bool showPassword = false;
 bool hasInvalidField = false;
 bool is2xStageTimer = false;
+bool enableDebugLogs = false;
 int connectTimer = 0;
 
 void handleGameplayMenu()
@@ -230,12 +231,12 @@ void handleGameplayMenu()
 
 		if (hasInvalidField)
 		{
-			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Please input a non empty IP/Player Name");
+			ImGui::TextColored(ImVec4(1, 0, 0, 1), "Please input a non empty Player Name");
 		}
 
 		if (ImGui::Button("Connect"))
 		{
-			if (apIP.empty() || apPlayerName.empty())
+			if (apPlayerName.empty())
 			{
 				hasInvalidField = true;
 			}
@@ -245,6 +246,9 @@ void handleGameplayMenu()
 				initArchipelago();
 			}
 		}
+
+		ImGui::Checkbox("Enable Debug Logs (Very Spammy)", &enableDebugLogs);
+
 		ImGui::EndTabItem();
 	}
 
@@ -295,6 +299,12 @@ bool isTrapItem = false;
 bool isOnlyShowGoal = false;
 int enhancementLevel = 0;
 
+std::vector<std::string> filterLocationType = { "All", "Achievements", "Shop", "HoloHouse", "Unique Enemy Kills" };
+int selectedFilterLocationTypeIndex = 0;
+
+std::vector<std::string> filterItemType = { "All", "Stage", "Characters", "Weapons", "Items", "Shop", "HoloHouse" };
+int selectedFilterItemTypeIndex = 0;
+
 void handleArchipelagoMenu(CInstance* Self)
 {
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
@@ -303,18 +313,29 @@ void handleArchipelagoMenu(CInstance* Self)
 	ImGui::Begin("Archipelago Window");
 
 	ImGui::BeginTabBar("Archipelago");
-	if (ImGui::BeginTabItem("Checks"))
+	if (ImGui::BeginTabItem("Location"))
 	{
 		//	ImGuiListClipper clipper;
 		//	clipper.Begin(locationToNameMap.size());
 
-//		ImGui::Checkbox("Toggle Force Check", &isForceCheck);
+//		ImGui::Checkbox("Toggle Force Location", &isForceCheck);
 		if (isLocationHintEnabled)
 		{
 			ImGui::Checkbox("Toggle Location Hints", &isLocationHint);
 			ImGui::Checkbox("Filter Progression Item", &isProgressionItem);
 			ImGui::Checkbox("Filter Useful Item", &isUsefulItem);
 			ImGui::Checkbox("Filter Trap Item", &isTrapItem);
+		}
+		if (ImGui::BeginCombo("Filter Locations", filterLocationType[selectedFilterLocationTypeIndex].c_str()))
+		{
+			for (int i = 0; i < filterLocationType.size(); i++)
+			{
+				if (ImGui::Selectable(filterLocationType[i].c_str(), i == selectedFilterLocationTypeIndex))
+				{
+					selectedFilterLocationTypeIndex = i;
+				}
+			}
+			ImGui::EndCombo();
 		}
 		ImGui::Checkbox("Only Show Goal Locations", &isOnlyShowGoal);
 		int itemBitFlag = (isProgressionItem ? 0b1 : 0) | (isUsefulItem ? 0b10 : 0) | (isTrapItem ? 0b100 : 0);
@@ -394,6 +415,22 @@ void handleArchipelagoMenu(CInstance* Self)
 				{
 					continue;
 				}
+				if (selectedFilterLocationTypeIndex == 1 && (locationPair.first < locationIndexEnum_AmeliaWastonStageClear || locationPair.first > locationIndexEnum_GetSomeHelp))
+				{
+					continue;
+				}
+				if (selectedFilterLocationTypeIndex == 2 && (locationPair.first < locationIndexEnum_SpecialAttackShop || locationPair.first > locationIndexEnum_MarketingShop5))
+				{
+					continue;
+				}
+				if (selectedFilterLocationTypeIndex == 3 && (locationPair.first < locationIndexEnum_Obtain50Wheat || locationPair.first > locationIndexEnum_ReachMiningLevel9))
+				{
+					continue;
+				}
+				if (selectedFilterLocationTypeIndex == 4 && (locationPair.first < locationIndexEnum_Defeat1Chumbud || locationPair.first > locationIndexEnum_Defeat1Otaku))
+				{
+					continue;
+				}
 				if (!hololiveMemberIncludeList.empty() && hololiveMemberIncludeList.size() != 47 && locationToCharacterNameMap.contains(locationPair.first))
 				{
 					bool isInWhiteList = false;
@@ -459,8 +496,43 @@ void handleArchipelagoMenu(CInstance* Self)
 
 	if (ImGui::BeginTabItem("Items"))
 	{
+		if (ImGui::BeginCombo("Filter Items", filterItemType[selectedFilterItemTypeIndex].c_str()))
+		{
+			for (int i = 0; i < filterItemType.size(); i++)
+			{
+				if (ImGui::Selectable(filterItemType[i].c_str(), i == selectedFilterItemTypeIndex))
+				{
+					selectedFilterItemTypeIndex = i;
+				}
+			}
+			ImGui::EndCombo();
+		}
 		for (auto& curItem : curObtainedItems)
 		{
+			if (selectedFilterItemTypeIndex == 1 && (curItem.first < itemIndexEnum_HoloHouse || curItem.first > itemIndexEnum_TimeStage1))
+			{
+				continue;
+			}
+			if (selectedFilterItemTypeIndex == 2 && (curItem.first < itemIndexEnum_AmeliaWatson || curItem.first > itemIndexEnum_HimemoriLuna))
+			{
+				continue;
+			}
+			if (selectedFilterItemTypeIndex == 3 && (curItem.first < itemIndexEnum_WamyWater || curItem.first > itemIndexEnum_OwlDagger))
+			{
+				continue;
+			}
+			if (selectedFilterItemTypeIndex == 4 && (curItem.first < itemIndexEnum_EnergyDrink || curItem.first > itemIndexEnum_PromiseTiara))
+			{
+				continue;
+			}
+			if (selectedFilterItemTypeIndex == 5 && (curItem.first < itemIndexEnum_SpecialAttackShopUpgrade || curItem.first > itemIndexEnum_MarketingProgressiveShopUpgrade))
+			{
+				continue;
+			}
+			if (selectedFilterItemTypeIndex == 6 && (curItem.first < itemIndexEnum_StandardSoil || curItem.first > itemIndexEnum_ProgressivePrism))
+			{
+				continue;
+			}
 			ImGui::Text("%s %d", itemToNameMap[curItem.first].c_str(), curItem.second);
 			if (curItem.first == itemIndexEnum_EnhancementProgressiveShopUpgrade)
 			{
@@ -736,7 +808,7 @@ void initArchipelago()
 {
 	AP_Shutdown();
 	callbackManagerInterfacePtr->LogToFile(MODNAME, "Init AP");
-	AP_Init(apIP.c_str(), apGame.c_str(), apPlayerName.c_str(), apPassword.c_str());
+	AP_Init(apIP.empty() ? "localhost:38281" : apIP.c_str(), apGame.c_str(), apPlayerName.c_str(), apPassword.c_str());
 
 	AP_SetItemClearCallback(itemClearCallback);
 	AP_SetItemRecvCallback(itemReceiveCallback);

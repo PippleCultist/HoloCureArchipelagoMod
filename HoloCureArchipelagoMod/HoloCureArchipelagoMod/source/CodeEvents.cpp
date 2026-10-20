@@ -13,7 +13,7 @@
 #include "Constants.h"
 
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
-extern std::unordered_map<itemIndexEnum, int> curObtainedItems;
+extern std::map<itemIndexEnum, int> curObtainedItems;
 extern std::deque<itemIndexEnum> itemIndexReceiveQueue;
 extern std::unordered_set<locationIndexEnum> obtainedLocationSet;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
@@ -38,6 +38,7 @@ extern int achievementGoal;
 extern int endGoal;
 extern bool isLocationHintEnabled;
 extern int enhancementLevel;
+extern bool enableDebugLogs;
 
 std::random_device rd;
 std::default_random_engine randomGenerator(rd());
@@ -60,6 +61,11 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 {
 	bool hasUpdated = false;
 	CInstance* Self = std::get<0>(Args);
+
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "InputManagerStepBefore");
+	}
 
 	if (AP_GetConnectionStatus() == AP_ConnectionStatus::Authenticated)
 	{
@@ -132,6 +138,7 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 				{
 					if (serverSaveID == 0)
 					{
+						loggingCallback("No id found on server");
 						AP_SetServerDataRequest serverSaveIDSetRequest;
 						RValue saveDir;
 						g_ModuleInterface->GetBuiltin("game_save_id", nullptr, NULL_INDEX, saveDir);
@@ -143,6 +150,10 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 								std::string fileName = dir.path().filename().string();
 								int firstIndex = fileName.find_first_of('_');
 								int lastIndex = fileName.find_last_of('_');
+								if (enableDebugLogs)
+								{
+									callbackManagerInterfacePtr->LogToFile(MODNAME, "%s %d %d %s", fileName.c_str(), firstIndex, lastIndex, fileName.substr(firstIndex + 1, lastIndex - firstIndex - 1).c_str());
+								}
 								if (apPlayerName.compare(fileName.substr(firstIndex + 1, lastIndex - firstIndex - 1)) == 0)
 								{
 									saveIndexSet.insert(stoi(fileName.substr(lastIndex + 1, fileName.size() - 5)));
@@ -498,6 +509,10 @@ void CharSelectCreateBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 
 void CharSelectCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "CharSelectCreateAfter");
+	}
 	isInSelectChar = false;
 	CInstance* Self = std::get<0>(Args);
 	RValue charInfo = getInstanceVariable(Self, GML_characterInfo);
@@ -543,6 +558,10 @@ void CharSelectDrawAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*
 
 void AchievementsOther10After(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "AchievementsOther10After");
+	}
 	CInstance* Self = std::get<0>(Args);
 	RValue achievementMap = getInstanceVariable(Self, GML_ACHIEVEMENTS);
 	RValue achievementArr = g_ModuleInterface->CallBuiltin("ds_map_values_to_array", { achievementMap });
@@ -560,6 +579,10 @@ void AchievementsOther10After(std::tuple<CInstance*, CInstance*, CCode*, int, RV
 
 void ShopCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "ShopCreateAfter");
+	}
 	CInstance* Self = std::get<0>(Args);
 	RValue shopItems = getInstanceVariable(Self, GML_shopItems);
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
@@ -585,6 +608,10 @@ void ShopCreateAfter(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& A
 
 void PlayerManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RValue*>& Args)
 {
+	if (enableDebugLogs)
+	{
+		callbackManagerInterfacePtr->LogToFile(MODNAME, "PlayerManagerStepBefore");
+	}
 	if (is2xStageTimer)
 	{
 		RValue timePause = g_ModuleInterface->CallBuiltin("variable_global_get", { "timePause" });
