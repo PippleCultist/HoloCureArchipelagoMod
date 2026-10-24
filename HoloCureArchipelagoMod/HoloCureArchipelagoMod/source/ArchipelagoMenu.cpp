@@ -187,6 +187,7 @@ bool showPassword = false;
 bool hasInvalidField = false;
 bool is2xStageTimer = false;
 bool enableDebugLogs = false;
+bool enableDemoWindow = false;
 int connectTimer = 0;
 
 void handleGameplayMenu()
@@ -248,6 +249,7 @@ void handleGameplayMenu()
 		}
 
 		ImGui::Checkbox("Enable Debug Logs (Very Spammy)", &enableDebugLogs);
+		ImGui::Checkbox("Demo Window", &enableDemoWindow);
 
 		ImGui::EndTabItem();
 	}
@@ -556,6 +558,10 @@ void handleImGUI(CInstance* Self)
 	handleLogMenu();
 	handleGameplayMenu();
 	handleArchipelagoMenu(Self);
+	if (enableDemoWindow)
+	{
+		ImGui::ShowDemoWindow();
+	}
 }
 
 void loggingCallback(std::string logMessage)
