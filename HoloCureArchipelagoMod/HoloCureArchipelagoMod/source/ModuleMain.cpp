@@ -264,6 +264,8 @@ void initHooks()
 
 	loadModImguiMenu();
 
+	g_ModuleInterface->CallBuiltin("window_enable_borderless_fullscreen", { true });
+
 	callbackManagerInterfacePtr->LogToFile(MODNAME, "Finished initializing");
 }
 
