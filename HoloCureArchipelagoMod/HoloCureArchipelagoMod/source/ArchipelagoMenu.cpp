@@ -54,6 +54,7 @@ int endGoal = -1;
 
 std::unordered_set<locationIndexEnum> serverObtainedLocationSet;
 std::unordered_set<std::string> hololiveMemberIncludeList;
+std::unordered_set<int> achievementLocationSet;
 
 extern CallbackManagerInterface* callbackManagerInterfacePtr;
 extern std::map<locationIndexEnum, std::string> locationToNameMap;
@@ -267,6 +268,43 @@ void handleGameplayMenu()
 
 void sendAPCheck(CInstance* Self, locationIndexEnum sendLocationIndex)
 {
+	if (!isGrindyChecksEnabled && grindyLocations.contains(sendLocationIndex))
+	{
+		return;
+	}
+	if (!isStageEnabled && (endGoal != goalIndexEnum_BeatAllNormalStages && endGoal != goalIndexEnum_BeatAllHardStages) && (stageLocations.contains(sendLocationIndex) || enemyCheckLocations.contains(sendLocationIndex)))
+	{
+		return;
+	}
+	if (!isHoloHouseRandomizationEnabled && holoHouseRandomizationLocations.contains(sendLocationIndex))
+	{
+		return;
+	}
+	if (!isUniqueEnemyCheckEnabled && enemyCheckLocations.contains(sendLocationIndex))
+	{
+		return;
+	}
+	if (!hololiveMemberIncludeList.empty() && hololiveMemberIncludeList.size() != 47 && locationToCharacterNameMap.contains(sendLocationIndex))
+	{
+		bool isInIncludeList = false;
+		for (auto& curCharName : locationToCharacterNameMap[sendLocationIndex])
+		{
+			if (hololiveMemberIncludeList.contains(curCharName))
+			{
+				isInIncludeList = true;
+				break;
+			}
+		}
+
+		if (!isInIncludeList)
+		{
+			return;
+		}
+	}
+	if (sendLocationIndex >= locationIndexEnum_AmeliaWastonStageClear && sendLocationIndex <= locationIndexEnum_GetSomeHelp && !achievementLocationSet.contains(sendLocationIndex))
+	{
+		return;
+	}
 	obtainedLocationSet.insert(sendLocationIndex);
 	RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 	RValue archipelagoChecks = g_ModuleInterface->CallBuiltin("ds_map_find_value", { playerSave, "archipelagoChecks" });
@@ -300,6 +338,7 @@ bool isUsefulItem = false;
 bool isTrapItem = false;
 bool isOnlyShowGoal = false;
 int enhancementLevel = 0;
+bool isFandomEnabled = true;
 
 std::vector<std::string> filterLocationType = { "All", "Achievements", "Shop", "HoloHouse", "Unique Enemy Kills" };
 int selectedFilterLocationTypeIndex = 0;
@@ -379,6 +418,10 @@ void handleArchipelagoMenu(CInstance* Self)
 					continue;
 				}
 			}
+			if (locationPair.first >= locationIndexEnum_AmeliaWastonStageClear && locationPair.first <= locationIndexEnum_GetSomeHelp && !achievementLocationSet.contains(locationPair.first))
+			{
+				continue;
+			}
 			if (!locationItemHintMap.empty() && (locationItemHintMap[locationPair.first].flags & itemBitFlag) != itemBitFlag)
 			{
 				continue;
@@ -414,6 +457,10 @@ void handleArchipelagoMenu(CInstance* Self)
 					continue;
 				}
 				if (!isUniqueEnemyCheckEnabled && enemyCheckLocations.contains(locationPair.first))
+				{
+					continue;
+				}
+				if (locationPair.first >= locationIndexEnum_AmeliaWastonStageClear && locationPair.first <= locationIndexEnum_GetSomeHelp && !achievementLocationSet.contains(locationPair.first))
 				{
 					continue;
 				}
@@ -542,6 +589,14 @@ void handleArchipelagoMenu(CInstance* Self)
 				{
 					RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
 					g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, shopToIDMap[curItem.first].c_str(), enhancementLevel });
+				}
+			}
+			else if (curItem.first == itemIndexEnum_FandomShopUpgrade)
+			{
+				if (ImGui::Checkbox("Enable Fandom", &isFandomEnabled))
+				{
+					RValue playerSave = g_ModuleInterface->CallBuiltin("variable_global_get", { "PlayerSave" });
+					g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, shopToIDMap[curItem.first].c_str(), isFandomEnabled });
 				}
 			}
 		}
@@ -810,6 +865,18 @@ void slotDataEnableLocationHintsCallback(int slotData)
 	isLocationHintEnabled = slotData;
 }
 
+void slotDataAchievementLocationsCallback(std::string slotData)
+{
+	loggingCallback("Achievement Locations: " + slotData);
+	achievementLocationSet.clear();
+	nlohmann::json achievementLocationList = nlohmann::json::parse(slotData);
+	int arrLen = achievementLocationList.size();
+	for (int i = 0; i < arrLen; i++)
+	{
+		achievementLocationSet.insert(achievementLocationList[i].get<int>());
+	}
+}
+
 void initArchipelago()
 {
 	AP_Shutdown();
@@ -830,7 +897,8 @@ void initArchipelago()
 	AP_RegisterSlotDataIntCallback("hololive_member_goal", slotDataHololiveMemberGoalCallback);
 	AP_RegisterSlotDataIntCallback("achievement_goal", slotDataAchievementGoalCallback);
 	AP_RegisterSlotDataIntCallback("enable_location_hints", slotDataEnableLocationHintsCallback);
-
+	AP_RegisterSlotDataRawCallback("achievement_locations", slotDataAchievementLocationsCallback);
+	
 	AP_SetLoggingCallback(loggingCallback);
 
 //	isConnecting = true;

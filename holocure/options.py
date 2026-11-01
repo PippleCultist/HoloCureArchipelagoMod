@@ -79,7 +79,7 @@ class EnableHoloHouseRandomization(DefaultOnToggle):
 
 	display_name = "Enable HoloHouse Randomization"
 
-class EnableUniqueEnemyChecks(Toggle):
+class EnableUniqueEnemyChecks(DefaultOnToggle):
 	"""
 	Controls if enemy checks is enabled or not
 	"""
@@ -173,6 +173,15 @@ class EnableEasierStart(Toggle):
 
 	display_name = "Enable Easier Start"
 
+class AchievementCount(Range):
+	"""
+	The number of achievements that will be used as locations
+	"""
+	display_name = "Achievement Count"
+	range_start = 0
+	range_end = 201
+	default = 30
+
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -191,6 +200,7 @@ class HoloCureOptions(PerGameCommonOptions):
 	starting_weapon_count: StartingWeaponCount
 	starting_item_count: StartingItemCount
 	enable_easier_start: EnableEasierStart
+	achievement_count: AchievementCount
 
 
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
@@ -198,7 +208,7 @@ option_groups = [
 	OptionGroup(
 		"Gameplay Options",
 		[EndGoal, GrindyChecks, EnableStage, EnableHoloHouseRandomization, EnableUniqueEnemyChecks, HololiveMemberIncludeList, HololiveMemberExcludeList, HololiveMemberGoal, AchievementGoal,
-		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount, EnableEasierStart],
+		ItemPoolHololiveMemberCount, StartingHololiveMemberCount, StartingWeaponCount, StartingItemCount, EnableEasierStart, AchievementCount],
 	),
 ]
 
@@ -209,7 +219,10 @@ option_presets = {
 		"grindy_checks": False,
 		"enable_stage": True,
 		"enable_holo_house_randomization": False,
-		"enable_unique_enemy_checks": False,
+		"enable_unique_enemy_checks": True,
+		"starting_hololive_member_count": 1,
+		"enable_easier_start": True,
+		"achievement_count": 30,
 	},
 	"holoHouse": {
 		"end_goal": EndGoal.option_shop,

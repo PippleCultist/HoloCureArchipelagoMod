@@ -25,6 +25,7 @@ extern std::unordered_map<itemIndexEnum, std::string> holoHouseItemToIDMap;
 extern std::unordered_set<locationIndexEnum> enemyCheckLocations;
 extern std::unordered_set<std::string> hololiveMemberIncludeList;
 extern std::map<locationIndexEnum, std::vector<std::string>> locationToCharacterNameMap;
+extern std::unordered_set<int> achievementLocationSet;
 
 extern std::string apPlayerName;
 extern bool newConnectSendChecks;
@@ -110,6 +111,10 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 						{
 							continue;
 						}
+					}
+					if (locationPair.first >= locationIndexEnum_AmeliaWastonStageClear && locationPair.first <= locationIndexEnum_GetSomeHelp && !achievementLocationSet.contains(locationPair.first))
+					{
+						continue;
 					}
 					locations.insert(locationPair.first);
 				}

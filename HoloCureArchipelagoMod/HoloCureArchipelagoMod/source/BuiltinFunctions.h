@@ -5,3 +5,4 @@
 void FileExistsBefore(RValue& Result, CInstance* Self, CInstance* Other, int numArgs, RValue* Args);
 void FileDeleteBefore(RValue& Result, CInstance* Self, CInstance* Other, int numArgs, RValue* Args);
 void DsMapFindValueBefore(RValue& Result, CInstance* Self, CInstance* Other, int numArgs, RValue* Args);
+void ShowDebugMessageBefore(RValue& Result, CInstance* Self, CInstance* Other, int numArgs, RValue* Args);

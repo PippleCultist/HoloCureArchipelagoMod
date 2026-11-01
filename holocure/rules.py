@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING
 from rule_builder.options import OptionFilter
 from rule_builder.rules import Has, HasAll, Rule
 
-from .locations import location_data
-
 if TYPE_CHECKING:
 	from .world import HoloCureWorld
 
@@ -93,17 +91,10 @@ def set_all_entrance_rules(world: HoloCureWorld) -> None:
 
 
 def set_all_location_rules(world: HoloCureWorld) -> None:
+	from .locations import location_data
 	for cur_location_data in location_data:
 		if cur_location_data.required_items is not None:
-			if not world.options.grindy_checks and (cur_location_data.region_name == "Grindy Stage" or cur_location_data.region_name == "Grindy HoloHouse"):
-				continue
-			if not is_stage_enabled(world) and (cur_location_data.region_name == "Stage" or cur_location_data.region_name == "Grindy Stage" or cur_location_data.region_name == "Stage 1" or cur_location_data.region_name == "Stage 2" or cur_location_data.region_name == "Stage 3" or cur_location_data.region_name == "Stage 4" or cur_location_data.region_name == "Stage 5" or cur_location_data.region_name == "Stage 1 (Hard)" or cur_location_data.region_name == "Stage 2 (Hard)" or cur_location_data.region_name == "Stage 3 (Hard)" or cur_location_data.region_name == "Stage 4 (Hard)"):
-				continue
-			if (not is_stage_enabled(world) or not world.options.enable_unique_enemy_checks) and cur_location_data.region_name == "StageEnemyCheck":
-				continue
-			if not is_holo_house_enabled(world) and (cur_location_data.region_name == "HoloHouse" or cur_location_data.region_name == "Grindy HoloHouse"):
-				continue
-			if not is_in_hololive_member_list(world, cur_location_data.character_name_list):
+			if not cur_location_data.location_id in world.location_data_is_enabled or not world.location_data_is_enabled[cur_location_data.location_id]:
 				continue
 			world.set_rule(world.get_location(cur_location_data.location_name), cur_location_data.required_items)
 	# Location rules work no differently from Entrance rules.

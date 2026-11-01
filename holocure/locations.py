@@ -3,7 +3,9 @@ from rule_builder.rules import Has, HasAll, HasAny, And, Rule, CanReachLocation
 
 from typing import TYPE_CHECKING
 
-from BaseClasses import ItemClassification, Location
+from BaseClasses import ItemClassification, Location, Region
+
+import logging
 
 from . import items
 
@@ -16,6 +18,12 @@ from .options import EndGoal
 
 gachikoi_rule = Has("Fandom Shop Upgrade") & Has("Progressive Stage", 3) & Has("Progressive Stage (Hard)", 2)
 
+def stage_rule_requirement(stage_num: int, is_hard_stage: bool) -> Rule:
+	if not is_hard_stage:
+		return Has("Progressive Stage", stage_num) & Has("ATK Progressive Shop Upgrade", stage_num) & Has("SPD Progressive Shop Upgrade", stage_num)
+	else:
+		return Has("Progressive Stage (Hard)", stage_num) & Has("ATK Progressive Shop Upgrade", stage_num + 4) & Has("SPD Progressive Shop Upgrade", stage_num + 4)
+
 class LocationData:
 
 	def __init__(self, location_id: int, location_name: str, region_name: str, character_name_list: list[str], required_items: Rule | None = None, count: int = 1):
@@ -27,121 +35,121 @@ class LocationData:
 		self.count = count
 
 location_data = [
-	LocationData(1, "Clear a Stage with Amelia Watson", "Stage", ["Amelia Watson"], Has("Amelia Watson")),
+	LocationData(1, "Clear a Stage with Amelia Watson", "Stage", ["Amelia Watson"], Has("Amelia Watson") & stage_rule_requirement(1, False)),
 	LocationData(2, "Reach Gachikoi with Amelia Watson", "Grindy Stage", ["Amelia Watson"], Has("Amelia Watson") & gachikoi_rule),
-	LocationData(3, "Clear a Stage with Gawr Gura", "Stage", ["Gawr Gura"], Has("Gawr Gura")),
+	LocationData(3, "Clear a Stage with Gawr Gura", "Stage", ["Gawr Gura"], Has("Gawr Gura") & stage_rule_requirement(1, False)),
 	LocationData(4, "Reach Gachikoi with Gawr Gura", "Grindy Stage", ["Gawr Gura"], Has("Gawr Gura") & gachikoi_rule),
-	LocationData(5, "Reach 10 minutes with Ninomae Inanis", "Stage", ["Ninomae Inanis"], Has("Ninomae Inanis")),
-	LocationData(6, "Clear a Stage with Ninomae Inanis", "Stage", ["Ninomae Inanis"], Has("Ninomae Inanis")),
+	LocationData(5, "Reach 10 minutes with Ninomae Inanis", "Stage", ["Ninomae Inanis"], Has("Ninomae Inanis") & stage_rule_requirement(1, False)),
+	LocationData(6, "Clear a Stage with Ninomae Inanis", "Stage", ["Ninomae Inanis"], Has("Ninomae Inanis") & stage_rule_requirement(1, False)),
 	LocationData(7, "Reach Gachikoi with Ninomae Inanis", "Grindy Stage", ["Ninomae Inanis"], Has("Ninomae Inanis") & gachikoi_rule),
-	LocationData(8, "Reach 10 minutes with Takanashi Kiara", "Stage", ["Takanashi Kiara"], Has("Takanashi Kiara")),
-	LocationData(9, "Clear a Stage with Takanashi Kiara", "Stage", ["Takanashi Kiara"], Has("Takanashi Kiara")),
+	LocationData(8, "Reach 10 minutes with Takanashi Kiara", "Stage", ["Takanashi Kiara"], Has("Takanashi Kiara") & stage_rule_requirement(1, False)),
+	LocationData(9, "Clear a Stage with Takanashi Kiara", "Stage", ["Takanashi Kiara"], Has("Takanashi Kiara") & stage_rule_requirement(1, False)),
 	LocationData(10, "Reach Gachikoi with Takanashi Kiara", "Grindy Stage", ["Takanashi Kiara"], Has("Takanashi Kiara") & gachikoi_rule),
-	LocationData(11, "Reach 10 minutes with Mori Calliope", "Stage", ["Mori Calliope"], Has("Mori Calliope")),
-	LocationData(12, "Clear a Stage with Mori Calliope", "Stage", ["Mori Calliope"], Has("Mori Calliope")),
+	LocationData(11, "Reach 10 minutes with Mori Calliope", "Stage", ["Mori Calliope"], Has("Mori Calliope") & stage_rule_requirement(1, False)),
+	LocationData(12, "Clear a Stage with Mori Calliope", "Stage", ["Mori Calliope"], Has("Mori Calliope") & stage_rule_requirement(1, False)),
 	LocationData(13, "Reach Gachikoi with Mori Calliope", "Grindy Stage", ["Mori Calliope"], Has("Mori Calliope") & gachikoi_rule),
-	LocationData(14, "Reach 10 minutes with Hakos Baelz", "Stage", ["Hakos Baelz"], Has("Hakos Baelz")),
-	LocationData(15, "Clear a Stage with Hakos Baelz", "Stage", ["Hakos Baelz"], Has("Hakos Baelz")),
+	LocationData(14, "Reach 10 minutes with Hakos Baelz", "Stage", ["Hakos Baelz"], Has("Hakos Baelz") & stage_rule_requirement(1, False)),
+	LocationData(15, "Clear a Stage with Hakos Baelz", "Stage", ["Hakos Baelz"], Has("Hakos Baelz") & stage_rule_requirement(1, False)),
 	LocationData(16, "Reach Gachikoi with Hakos Baelz", "Grindy Stage", ["Hakos Baelz"], Has("Hakos Baelz") & gachikoi_rule),
-	LocationData(17, "Clear a Stage with Ouro Kronii", "Stage", ["Ouro Kronii"], Has("Ouro Kronii")),
+	LocationData(17, "Clear a Stage with Ouro Kronii", "Stage", ["Ouro Kronii"], Has("Ouro Kronii") & stage_rule_requirement(1, False)),
 	LocationData(18, "Reach Gachikoi with Ouro Kronii", "Grindy Stage", ["Ouro Kronii"], Has("Ouro Kronii") & gachikoi_rule),
-	LocationData(19, "Clear a Stage with Ceres Fauna", "Stage", ["Ceres Fauna"], Has("Ceres Fauna")),
+	LocationData(19, "Clear a Stage with Ceres Fauna", "Stage", ["Ceres Fauna"], Has("Ceres Fauna") & stage_rule_requirement(1, False)),
 	LocationData(20, "Reach Gachikoi with Ceres Fauna", "Grindy Stage", ["Ceres Fauna"], Has("Ceres Fauna") & gachikoi_rule),
-	LocationData(21, "Clear a Stage with Nanashi Mumei", "Stage", ["Nanashi Mumei"], Has("Nanashi Mumei")),
+	LocationData(21, "Clear a Stage with Nanashi Mumei", "Stage", ["Nanashi Mumei"], Has("Nanashi Mumei") & stage_rule_requirement(1, False)),
 	LocationData(22, "Reach Gachikoi with Nanashi Mumei", "Grindy Stage", ["Nanashi Mumei"], Has("Nanashi Mumei") & gachikoi_rule),
-	LocationData(23, "Reach 10 minutes with Tsukumo Sana", "Stage", ["Tsukumo Sana"], Has("Tsukumo Sana")),
-	LocationData(24, "Clear a Stage with Tsukumo Sana", "Stage", ["Tsukumo Sana"], Has("Tsukumo Sana")),
+	LocationData(23, "Reach 10 minutes with Tsukumo Sana", "Stage", ["Tsukumo Sana"], Has("Tsukumo Sana") & stage_rule_requirement(1, False)),
+	LocationData(24, "Clear a Stage with Tsukumo Sana", "Stage", ["Tsukumo Sana"], Has("Tsukumo Sana") & stage_rule_requirement(1, False)),
 	LocationData(25, "Reach Gachikoi with Tsukumo Sana", "Grindy Stage", ["Tsukumo Sana"], Has("Tsukumo Sana") & gachikoi_rule),
-	LocationData(26, "Reach 10 minutes with IRyS", "Stage", ["IRyS"], Has("IRyS")),
-	LocationData(27, "Clear a Stage with IRyS", "Stage", ["IRyS"], Has("IRyS")),
+	LocationData(26, "Reach 10 minutes with IRyS", "Stage", ["IRyS"], Has("IRyS") & stage_rule_requirement(1, False)),
+	LocationData(27, "Clear a Stage with IRyS", "Stage", ["IRyS"], Has("IRyS") & stage_rule_requirement(1, False)),
 	LocationData(28, "Reach Gachikoi with IRyS", "Grindy Stage", ["IRyS"], Has("IRyS") & gachikoi_rule),
-	LocationData(29, "Clear a Stage with Shirakami Fubuki", "Stage", ["Shirakami Fubuki"], Has("Shirakami Fubuki")),
+	LocationData(29, "Clear a Stage with Shirakami Fubuki", "Stage", ["Shirakami Fubuki"], Has("Shirakami Fubuki") & stage_rule_requirement(1, False)),
 	LocationData(30, "Reach Gachikoi with Shirakami Fubuki", "Grindy Stage", ["Shirakami Fubuki"], Has("Shirakami Fubuki") & gachikoi_rule),
-	LocationData(31, "Clear a Stage with Ookami Mio", "Stage", ["Ookami Mio"], Has("Ookami Mio")),
+	LocationData(31, "Clear a Stage with Ookami Mio", "Stage", ["Ookami Mio"], Has("Ookami Mio") & stage_rule_requirement(1, False)),
 	LocationData(32, "Reach Gachikoi with Ookami Mio", "Grindy Stage", ["Ookami Mio"], Has("Ookami Mio") & gachikoi_rule),
-	LocationData(33, "Clear a Stage with Nekomata Okayu", "Stage", ["Nekomata Okayu"], Has("Nekomata Okayu")),
+	LocationData(33, "Clear a Stage with Nekomata Okayu", "Stage", ["Nekomata Okayu"], Has("Nekomata Okayu") & stage_rule_requirement(1, False)),
 	LocationData(34, "Reach Gachikoi with Nekomata Okayu", "Grindy Stage", ["Nekomata Okayu"], Has("Nekomata Okayu") & gachikoi_rule),
-	LocationData(35, "Reach 10 minutes with Inugami Korone", "Stage", ["Inugami Korone"], Has("Inugami Korone")),
-	LocationData(36, "Clear a Stage with Inugami Korone", "Stage", ["Inugami Korone"], Has("Inugami Korone")),
+	LocationData(35, "Reach 10 minutes with Inugami Korone", "Stage", ["Inugami Korone"], Has("Inugami Korone") & stage_rule_requirement(1, False)),
+	LocationData(36, "Clear a Stage with Inugami Korone", "Stage", ["Inugami Korone"], Has("Inugami Korone") & stage_rule_requirement(1, False)),
 	LocationData(37, "Reach Gachikoi with Inugami Korone", "Grindy Stage", ["Inugami Korone"], Has("Inugami Korone") & gachikoi_rule),
-	LocationData(38, "Clear a Stage with Tokino Sora", "Stage", ["Tokino Sora"], Has("Tokino Sora")),
+	LocationData(38, "Clear a Stage with Tokino Sora", "Stage", ["Tokino Sora"], Has("Tokino Sora") & stage_rule_requirement(1, False)),
 	LocationData(39, "Reach Gachikoi with Tokino Sora", "Grindy Stage", ["Tokino Sora"], Has("Tokino Sora") & gachikoi_rule),
-	LocationData(40, "Clear a Stage with AZki", "Stage", ["AZki"], Has("AZki")),
+	LocationData(40, "Clear a Stage with AZki", "Stage", ["AZki"], Has("AZki") & stage_rule_requirement(1, False)),
 	LocationData(41, "Reach Gachikoi with AZki", "Grindy Stage", ["AZki"], Has("AZki") & gachikoi_rule),
-	LocationData(42, "Clear a Stage with Roboco-san", "Stage", ["Roboco-san"], Has("Roboco-san")),
+	LocationData(42, "Clear a Stage with Roboco-san", "Stage", ["Roboco-san"], Has("Roboco-san") & stage_rule_requirement(1, False)),
 	LocationData(43, "Reach Gachikoi with Roboco-san", "Grindy Stage", ["Roboco-san"], Has("Roboco-san") & gachikoi_rule),
-	LocationData(44, "Clear a Stage with Hoshimachi Suisei", "Stage", ["Hoshimachi Suisei"], Has("Hoshimachi Suisei")),
+	LocationData(44, "Clear a Stage with Hoshimachi Suisei", "Stage", ["Hoshimachi Suisei"], Has("Hoshimachi Suisei") & stage_rule_requirement(1, False)),
 	LocationData(45, "Reach Gachikoi with Hoshimachi Suisei", "Grindy Stage", ["Hoshimachi Suisei"], Has("Hoshimachi Suisei") & gachikoi_rule),
-	LocationData(46, "Clear a Stage with Sakura Miko", "Stage", ["Sakura Miko"], Has("Sakura Miko")),
+	LocationData(46, "Clear a Stage with Sakura Miko", "Stage", ["Sakura Miko"], Has("Sakura Miko") & stage_rule_requirement(1, False)),
 	LocationData(47, "Reach Gachikoi with Sakura Miko", "Grindy Stage", ["Sakura Miko"], Has("Sakura Miko") & gachikoi_rule),
-	LocationData(48, "Clear a Stage with Akai Haato", "Stage", ["Akai Haato"], Has("Akai Haato")),
+	LocationData(48, "Clear a Stage with Akai Haato", "Stage", ["Akai Haato"], Has("Akai Haato") & stage_rule_requirement(1, False)),
 	LocationData(49, "Reach Gachikoi with Akai Haato", "Grindy Stage", ["Akai Haato"], Has("Akai Haato") & gachikoi_rule),
-	LocationData(50, "Clear a Stage with Yozora Mel", "Stage", ["Yozora Mel"], Has("Yozora Mel")),
+	LocationData(50, "Clear a Stage with Yozora Mel", "Stage", ["Yozora Mel"], Has("Yozora Mel") & stage_rule_requirement(1, False)),
 	LocationData(51, "Reach Gachikoi with Yozora Mel", "Grindy Stage", ["Yozora Mel"], Has("Yozora Mel") & gachikoi_rule),
-	LocationData(52, "Clear a Stage with Natsuiro Matsuri", "Stage", ["Natsuiro Matsuri"], Has("Natsuiro Matsuri")),
+	LocationData(52, "Clear a Stage with Natsuiro Matsuri", "Stage", ["Natsuiro Matsuri"], Has("Natsuiro Matsuri") & stage_rule_requirement(1, False)),
 	LocationData(53, "Reach Gachikoi with Natsuiro Matsuri", "Grindy Stage", ["Natsuiro Matsuri"], Has("Natsuiro Matsuri") & gachikoi_rule),
-	LocationData(54, "Clear a Stage with Aki Rosenthal", "Stage", ["Aki Rosenthal"], Has("Aki Rosenthal")),
+	LocationData(54, "Clear a Stage with Aki Rosenthal", "Stage", ["Aki Rosenthal"], Has("Aki Rosenthal") & stage_rule_requirement(1, False)),
 	LocationData(55, "Reach Gachikoi with Aki Rosenthal", "Grindy Stage", ["Aki Rosenthal"], Has("Aki Rosenthal") & gachikoi_rule),
-	LocationData(56, "Clear a Stage with Yuzuki Choco", "Stage", ["Yuzuki Choco"], Has("Yuzuki Choco")),
+	LocationData(56, "Clear a Stage with Yuzuki Choco", "Stage", ["Yuzuki Choco"], Has("Yuzuki Choco") & stage_rule_requirement(1, False)),
 	LocationData(57, "Reach Gachikoi with Yuzuki Choco", "Grindy Stage", ["Yuzuki Choco"], Has("Yuzuki Choco") & gachikoi_rule),
-	LocationData(58, "Clear a Stage with Oozora Subaru", "Stage", ["Oozora Subaru"], Has("Oozora Subaru")),
+	LocationData(58, "Clear a Stage with Oozora Subaru", "Stage", ["Oozora Subaru"], Has("Oozora Subaru") & stage_rule_requirement(1, False)),
 	LocationData(59, "Reach Gachikoi with Oozora Subaru", "Grindy Stage", ["Oozora Subaru"], Has("Oozora Subaru") & gachikoi_rule),
-	LocationData(60, "Reach 10 minutes with Murasaki Shion", "Stage", ["Murasaki Shion"], Has("Murasaki Shion")),
-	LocationData(61, "Clear a Stage with Murasaki Shion", "Stage", ["Murasaki Shion"], Has("Murasaki Shion")),
+	LocationData(60, "Reach 10 minutes with Murasaki Shion", "Stage", ["Murasaki Shion"], Has("Murasaki Shion") & stage_rule_requirement(1, False)),
+	LocationData(61, "Clear a Stage with Murasaki Shion", "Stage", ["Murasaki Shion"], Has("Murasaki Shion") & stage_rule_requirement(1, False)),
 	LocationData(62, "Reach Gachikoi with Murasaki Shion", "Grindy Stage", ["Murasaki Shion"], Has("Murasaki Shion") & gachikoi_rule),
-	LocationData(63, "Clear a Stage with Nakiri Ayame", "Stage", ["Nakiri Ayame"], Has("Nakiri Ayame")),
+	LocationData(63, "Clear a Stage with Nakiri Ayame", "Stage", ["Nakiri Ayame"], Has("Nakiri Ayame") & stage_rule_requirement(1, False)),
 	LocationData(64, "Reach Gachikoi with Nakiri Ayame", "Grindy Stage", ["Nakiri Ayame"], Has("Nakiri Ayame") & gachikoi_rule),
-	LocationData(65, "Clear a Stage with Minato Aqua", "Stage", ["Minato Aqua"], Has("Minato Aqua")),
+	LocationData(65, "Clear a Stage with Minato Aqua", "Stage", ["Minato Aqua"], Has("Minato Aqua") & stage_rule_requirement(1, False)),
 	LocationData(66, "Reach Gachikoi with Minato Aqua", "Grindy Stage", ["Minato Aqua"], Has("Minato Aqua") & gachikoi_rule),
-	LocationData(67, "Clear a Stage with Moona Hoshinova", "Stage", ["Moona Hoshinova"], Has("Moona Hoshinova")),
+	LocationData(67, "Clear a Stage with Moona Hoshinova", "Stage", ["Moona Hoshinova"], Has("Moona Hoshinova") & stage_rule_requirement(1, False)),
 	LocationData(68, "Reach Gachikoi with Moona Hoshinova", "Grindy Stage", ["Moona Hoshinova"], Has("Moona Hoshinova") & gachikoi_rule),
-	LocationData(69, "Clear a Stage with Airani Iofifteen", "Stage", ["Airani Iofifteen"], Has("Airani Iofifteen")),
+	LocationData(69, "Clear a Stage with Airani Iofifteen", "Stage", ["Airani Iofifteen"], Has("Airani Iofifteen") & stage_rule_requirement(1, False)),
 	LocationData(70, "Reach Gachikoi with Airani Iofifteen", "Grindy Stage", ["Airani Iofifteen"], Has("Airani Iofifteen") & gachikoi_rule),
-	LocationData(71, "Clear a Stage with Ayunda Risu", "Stage", ["Ayunda Risu"], Has("Ayunda Risu")),
+	LocationData(71, "Clear a Stage with Ayunda Risu", "Stage", ["Ayunda Risu"], Has("Ayunda Risu") & stage_rule_requirement(1, False)),
 	LocationData(72, "Reach Gachikoi with Ayunda Risu", "Grindy Stage", ["Ayunda Risu"], Has("Ayunda Risu") & gachikoi_rule),
-	LocationData(73, "Clear a Stage with Kureiji Ollie", "Stage", ["Kureiji Ollie"], Has("Kureiji Ollie")),
-	LocationData(74, "Reach 10 minutes with Kureiji Ollie", "Stage", ["Kureiji Ollie"], Has("Kureiji Ollie")),
+	LocationData(73, "Clear a Stage with Kureiji Ollie", "Stage", ["Kureiji Ollie"], Has("Kureiji Ollie") & stage_rule_requirement(1, False)),
+	LocationData(74, "Reach 10 minutes with Kureiji Ollie", "Stage", ["Kureiji Ollie"], Has("Kureiji Ollie") & stage_rule_requirement(1, False)),
 	LocationData(75, "Reach Gachikoi with Kureiji Ollie", "Grindy Stage", ["Kureiji Ollie"], Has("Kureiji Ollie") & gachikoi_rule),
-	LocationData(76, "Clear a Stage with Pavolia Reine", "Stage", ["Pavolia Reine"], Has("Pavolia Reine")),
+	LocationData(76, "Clear a Stage with Pavolia Reine", "Stage", ["Pavolia Reine"], Has("Pavolia Reine") & stage_rule_requirement(1, False)),
 	LocationData(77, "Reach Gachikoi with Pavolia Reine", "Grindy Stage", ["Pavolia Reine"], Has("Pavolia Reine") & gachikoi_rule),
-	LocationData(78, "Clear a Stage with Anya Melfissa", "Stage", ["Anya Melfissa"], Has("Anya Melfissa")),
+	LocationData(78, "Clear a Stage with Anya Melfissa", "Stage", ["Anya Melfissa"], Has("Anya Melfissa") & stage_rule_requirement(1, False)),
 	LocationData(79, "Reach Gachikoi with Anya Melfissa", "Grindy Stage", ["Anya Melfissa"], Has("Anya Melfissa") & gachikoi_rule),
-	LocationData(80, "Clear a Stage with Kobo Kanaeru", "Stage", ["Kobo Kanaeru"], Has("Kobo Kanaeru")),
+	LocationData(80, "Clear a Stage with Kobo Kanaeru", "Stage", ["Kobo Kanaeru"], Has("Kobo Kanaeru") & stage_rule_requirement(1, False)),
 	LocationData(81, "Reach Gachikoi with Kobo Kanaeru", "Grindy Stage", ["Kobo Kanaeru"], Has("Kobo Kanaeru") & gachikoi_rule),
-	LocationData(82, "Clear a Stage with Kaela Kovalskia", "Stage", ["Kaela Kovalskia"], Has("Kaela Kovalskia")),
+	LocationData(82, "Clear a Stage with Kaela Kovalskia", "Stage", ["Kaela Kovalskia"], Has("Kaela Kovalskia") & stage_rule_requirement(1, False)),
 	LocationData(83, "Reach Gachikoi with Kaela Kovalskia", "Grindy Stage", ["Kaela Kovalskia"], Has("Kaela Kovalskia") & gachikoi_rule),
-	LocationData(84, "Reach 10 minutes with Vestia Zeta", "Stage", ["Vestia Zeta"], Has("Vestia Zeta")),
-	LocationData(85, "Clear a Stage with Vestia Zeta", "Stage", ["Vestia Zeta"], Has("Vestia Zeta")),
+	LocationData(84, "Reach 10 minutes with Vestia Zeta", "Stage", ["Vestia Zeta"], Has("Vestia Zeta") & stage_rule_requirement(1, False)),
+	LocationData(85, "Clear a Stage with Vestia Zeta", "Stage", ["Vestia Zeta"], Has("Vestia Zeta") & stage_rule_requirement(1, False)),
 	LocationData(86, "Reach Gachikoi with Vestia Zeta", "Grindy Stage", ["Vestia Zeta"], Has("Vestia Zeta") & gachikoi_rule),
-	LocationData(87, "Clear a Stage with Usada Pekora", "Stage", ["Usada Pekora"], Has("Usada Pekora")),
+	LocationData(87, "Clear a Stage with Usada Pekora", "Stage", ["Usada Pekora"], Has("Usada Pekora") & stage_rule_requirement(1, False)),
 	LocationData(88, "Reach Gachikoi with Usada Pekora", "Grindy Stage", ["Usada Pekora"], Has("Usada Pekora") & gachikoi_rule),
-	LocationData(89, "Clear a Stage with Shirogane Noel", "Stage", ["Shirogane Noel"], Has("Shirogane Noel")),
+	LocationData(89, "Clear a Stage with Shirogane Noel", "Stage", ["Shirogane Noel"], Has("Shirogane Noel") & stage_rule_requirement(1, False)),
 	LocationData(90, "Reach Gachikoi with Shirogane Noel", "Grindy Stage", ["Shirogane Noel"], Has("Shirogane Noel") & gachikoi_rule),
-	LocationData(91, "Clear a Stage with Shiranui Flare", "Stage", ["Shiranui Flare"], Has("Shiranui Flare")),
+	LocationData(91, "Clear a Stage with Shiranui Flare", "Stage", ["Shiranui Flare"], Has("Shiranui Flare") & stage_rule_requirement(1, False)),
 	LocationData(92, "Reach Gachikoi with Shiranui Flare", "Grindy Stage", ["Shiranui Flare"], Has("Shiranui Flare") & gachikoi_rule),
-	LocationData(93, "Clear a Stage with Houshou Marine", "Stage", ["Houshou Marine"], Has("Houshou Marine")),
+	LocationData(93, "Clear a Stage with Houshou Marine", "Stage", ["Houshou Marine"], Has("Houshou Marine") & stage_rule_requirement(1, False)),
 	LocationData(94, "Reach Gachikoi with Houshou Marine", "Grindy Stage", ["Houshou Marine"], Has("Houshou Marine") & gachikoi_rule),
-	LocationData(95, "Clear a Stage with Kiryu Coco", "Stage", ["Kiryu Coco"], Has("Kiryu Coco")),
+	LocationData(95, "Clear a Stage with Kiryu Coco", "Stage", ["Kiryu Coco"], Has("Kiryu Coco") & stage_rule_requirement(1, False)),
 	LocationData(96, "Reach Gachikoi with Kiryu Coco", "Grindy Stage", ["Kiryu Coco"], Has("Kiryu Coco") & gachikoi_rule),
-	LocationData(97, "Clear a Stage with Amane Kanata", "Stage", ["Amane Kanata"], Has("Amane Kanata")),
+	LocationData(97, "Clear a Stage with Amane Kanata", "Stage", ["Amane Kanata"], Has("Amane Kanata") & stage_rule_requirement(1, False)),
 	LocationData(98, "Reach Gachikoi with Amane Kanata", "Grindy Stage", ["Amane Kanata"], Has("Amane Kanata") & gachikoi_rule),
-	LocationData(99, "Clear a Stage with Tsunomaki Watame", "Stage", ["Tsunomaki Watame"], Has("Tsunomaki Watame")),
+	LocationData(99, "Clear a Stage with Tsunomaki Watame", "Stage", ["Tsunomaki Watame"], Has("Tsunomaki Watame") & stage_rule_requirement(1, False)),
 	LocationData(100, "Reach Gachikoi with Tsunomaki Watame", "Grindy Stage", ["Tsunomaki Watame"], Has("Tsunomaki Watame") & gachikoi_rule),
-	LocationData(101, "Clear a Stage with Tokoyami Towa", "Stage", ["Tokoyami Towa"], Has("Tokoyami Towa")),
+	LocationData(101, "Clear a Stage with Tokoyami Towa", "Stage", ["Tokoyami Towa"], Has("Tokoyami Towa") & stage_rule_requirement(1, False)),
 	LocationData(102, "Reach Gachikoi with Tokoyami Towa", "Grindy Stage", ["Tokoyami Towa"], Has("Tokoyami Towa") & gachikoi_rule),
-	LocationData(103, "Clear a Stage with Himemori Luna", "Stage", ["Himemori Luna"], Has("Himemori Luna")),
+	LocationData(103, "Clear a Stage with Himemori Luna", "Stage", ["Himemori Luna"], Has("Himemori Luna") & stage_rule_requirement(1, False)),
 	LocationData(104, "Reach Gachikoi with Himemori Luna", "Grindy Stage", ["Himemori Luna"], Has("Himemori Luna") & gachikoi_rule),
 	LocationData(105, "Complete your first game", "Stage", []),
 	LocationData(106, "Defeat Fubura", "Stage 1", []),
-	LocationData(107, "Defeat the Boss of Stage 1", "Stage 1", []),
-	LocationData(108, "Defeat the Boss of Stage 2", "Stage 2", [], Has("ATK Progressive Shop Upgrade", 2) & Has("SPD Progressive Shop Upgrade", 2)),
-	LocationData(109, "Defeat the Boss of Stage 3", "Stage 3", [], Has("ATK Progressive Shop Upgrade", 3) & Has("SPD Progressive Shop Upgrade", 3)),
-	LocationData(110, "Defeat the Boss of Stage 4", "Stage 4", [], Has("ATK Progressive Shop Upgrade", 4) & Has("SPD Progressive Shop Upgrade", 4)),
-	LocationData(111, "Defeat the Boss of Stage 5", "Stage 5", [], Has("ATK Progressive Shop Upgrade", 5) & Has("SPD Progressive Shop Upgrade", 5)),
-	LocationData(112, "Defeat the Boss of Stage 1 (Hard)", "Stage 1 (Hard)", [], Has("ATK Progressive Shop Upgrade", 5) & Has("SPD Progressive Shop Upgrade", 5)),
-	LocationData(113, "Defeat the Boss of Stage 2 (Hard)", "Stage 2 (Hard)", [], Has("ATK Progressive Shop Upgrade", 6) & Has("SPD Progressive Shop Upgrade", 6)),
-	LocationData(114, "Defeat the Boss of Stage 3 (Hard)", "Stage 3 (Hard)", [], Has("ATK Progressive Shop Upgrade", 7) & Has("SPD Progressive Shop Upgrade", 7)),
-	LocationData(115, "Defeat the Boss of Stage 4 (Hard)", "Stage 4 (Hard)", [], Has("ATK Progressive Shop Upgrade", 8) & Has("SPD Progressive Shop Upgrade", 8)),
+	LocationData(107, "Defeat the Boss of Stage 1", "Stage 1", [], stage_rule_requirement(1, False)),
+	LocationData(108, "Defeat the Boss of Stage 2", "Stage 2", [], stage_rule_requirement(2, False)),
+	LocationData(109, "Defeat the Boss of Stage 3", "Stage 3", [], stage_rule_requirement(3, False)),
+	LocationData(110, "Defeat the Boss of Stage 4", "Stage 4", [], stage_rule_requirement(4, False)),
+	LocationData(111, "Defeat the Boss of Stage 5", "Stage 5", [], stage_rule_requirement(5, False)),
+	LocationData(112, "Defeat the Boss of Stage 1 (Hard)", "Stage 1 (Hard)", [], stage_rule_requirement(1, True)),
+	LocationData(113, "Defeat the Boss of Stage 2 (Hard)", "Stage 2 (Hard)", [], stage_rule_requirement(2, True)),
+	LocationData(114, "Defeat the Boss of Stage 3 (Hard)", "Stage 3 (Hard)", [], stage_rule_requirement(3, True)),
+	LocationData(115, "Defeat the Boss of Stage 4 (Hard)", "Stage 4 (Hard)", [], stage_rule_requirement(4, True)),
 	LocationData(116, "Clear a stage in Time Mode", "Time Mode", []),
 	LocationData(117, "Unlock all characters", "Menu", ["All"], HasAll("Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz", "Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio", "Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko", "Akai Haato", "Yozora Mel", "Natsuiro Matsuri", "Aki Rosenthal", "Yuzuki Choco", "Oozora Subaru", "Murasaki Shion", "Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine", "Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare", "Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna")),
 	LocationData(118, "Unlock and use a character's special", "Stage", [], Has("Special Attack Shop Upgrade")),
@@ -171,12 +179,12 @@ location_data = [
 	LocationData(142, "Defeat a Golden Yagoo", "Stage", [], Has("Haste Up Progressive Shop Upgrade", 4)),
 	LocationData(143, "Defeat a Silver Yagoo", "Stage", [], Has("Haste Up Progressive Shop Upgrade", 2)),
 	LocationData(144, "Be defeated by a Yagoo", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
-	LocationData(145, "Open a Super Box", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
-	LocationData(146, "Drop a super item", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
+	LocationData(145, "Open a Super Box", "Stage", [], stage_rule_requirement(4, True)),
+	LocationData(146, "Drop a super item", "Stage", [], stage_rule_requirement(4, True)),
 	LocationData(147, "Clear a stage in Hardcore Mode", "Stage", [], Has("Body Pillow") & And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
 	LocationData(148, "Get a weapon to +10 enhancements", "Stage", [], And(Has("Enhancement Rate Up Progressive Shop Upgrade", 5), Has("Blacksmith's Gear"), Has("Credit Card"))),
 	LocationData(149, "Clear with only your main weapon", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 5), Has("SPD Progressive Shop Upgrade", 5), Has("Haste Up Progressive Shop Upgrade", 3))),
-	LocationData(150, "Fail enhancements 5 times in 1 run", "Stage", [], HasAny("Blacksmith's Gear", "Credit Card")),
+	LocationData(150, "Fail enhancements 5 times in 1 run", "Stage", [], Has("Blacksmith's Gear") & Has("Credit Card")),
 	LocationData(151, "Fail a +1 > +2 enhancing", "Stage", [], Has("Credit Card")),
 	LocationData(152, "Clear with Halu level 5", "Stage", [], Has("Halu") & And(Has("ATK Progressive Shop Upgrade", 5), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 2), Has("Marketing Up Progressive Shop Upgrade", 2))),
 	LocationData(153, "Survive to 30 minutes with Halu level 5", "Stage", [], Has("Halu") & And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
@@ -210,9 +218,9 @@ location_data = [
 	LocationData(181, "Choose the Haste Stat Up option 10 times when leveling up", "Stage", [], Has("Study Glasses") & Has("Blacksmith's Gear") & Has("Credit Card")),
 	LocationData(182, "Wait out the entire 20 seconds on Iofi's special without drawing anything", "Stage", ["Airani Iofifteen"], Has("Airani Iofifteen") & Has("Special Attack Shop Upgrade")),
 	LocationData(183, "Clear a stage only choosing the first option when leveling up without rerolls", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 5), Has("SPD Progressive Shop Upgrade", 5), Has("Haste Up Progressive Shop Upgrade", 5))),
-	LocationData(184, "Clear a Hard Stage without taking any damage from projectiles", "Stage", [], Has("Progressive Stage (Hard)")),
+	LocationData(184, "Clear a Hard Stage without taking any damage from projectiles", "Stage", [], stage_rule_requirement(1, True)),
 	LocationData(185, "Clear a stage with Main Weapon at level 1 only", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 5), Has("SPD Progressive Shop Upgrade", 5), Has("Haste Up Progressive Shop Upgrade", 3))),
-	LocationData(186, "Clear a (Hard) stage without taking any Healing Items", "Stage", [], Has("Progressive Stage (Hard)")),
+	LocationData(186, "Clear a (Hard) stage without taking any Healing Items", "Stage", [], stage_rule_requirement(1, True)),
 	LocationData(187, "Have over 500 HP in 1 run", "Stage", [], And(Has("Max HP Progressive Shop Upgrade", 10), Has("Study Glasses"))),
 	LocationData(188, "Enter the Usada Casino", "HoloHouse", []),
 	LocationData(189, "Win a Worker Race", "HoloHouse", []),
@@ -221,10 +229,10 @@ location_data = [
 	LocationData(192, "Get a Pet in Holo House", "HoloHouse", []),
 	LocationData(193, "Lose in a Casino game with 0 UsaChips remaining", "HoloHouse", []),
 	LocationData(194, "Find 10 Fan Letters", "Stage", [], Has("Fan Letters Shop Upgrade")),
-	LocationData(195, "Get no questions wrong in Stage 4 (Hard)", "Stage 4 (Hard)", [], Has("Progressive Stage (Hard)", 4)),
+	LocationData(195, "Get no questions wrong in Stage 4 (Hard)", "Stage 4 (Hard)", [], stage_rule_requirement(4, True)),
 	LocationData(196, "Win a Jackpot in slots", "HoloHouse", []),
 	LocationData(197, "Sell 10 Stamps in 1 run", "Stage", [], Has("Stamps Shop Upgrade")),
-	LocationData(198, "Reach 500% Pick Up Range", "Stage", [], Has("Pick Up Range Progressive Shop Upgrade", 5)),
+	LocationData(198, "Reach 500% Pick Up Range", "Stage", [], Has("Pick Up Range Progressive Shop Upgrade", 5) & Has("Limiter")),
 	LocationData(199, "Clear a Stage Mode run after dying 3 times with Chickens Feather", "Stage", [], Has("Chicken's Feather")),
 	LocationData(200, "Clear the Tower of Suffering", "Grindy HoloHouse", [], Has("HoloHouse")),
 	LocationData(201, "Complete all achievements. Then go outside", "Grindy Stage", ["All"], Has("Progressive Stage", 4) & Has("Progressive Stage (Hard)", 4)),
@@ -448,90 +456,89 @@ location_data = [
 	LocationData(419, "Reach Mining Level 7", "HoloHouse", [], Has("Progressive Pickaxe", 5)),
 	LocationData(420, "Reach Mining Level 8", "HoloHouse", [], Has("Progressive Pickaxe", 6)),
 	LocationData(421, "Reach Mining Level 9", "HoloHouse", [], Has("Progressive Pickaxe", 7)),
-	LocationData(422, "Defeat 1 Chumbud", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(423, "Defeat 1 Chumbud (Q)", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(424, "Defeat 1 Deadbeat", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(425, "Defeat 1 Deadbeat (Q)", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(426, "Defeat 1 Takodachi", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(427, "Defeat 1 KFP", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(428, "Defeat 1 Tea-mate", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(429, "Defeat 1 Cursed Bubba", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(430, "Defeat 1 Smol Ame", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(431, "Defeat 1 Brat", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(432, "Defeat 1 Bae (Halloween)", "StageEnemyCheck", [], Has("Progressive Stage (Hard)")),
-	LocationData(433, "Defeat 1 Hooman", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(434, "Defeat 1 Sapling", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(435, "Defeat 1 Kronie", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(436, "Defeat 1 Sanalite", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(437, "Defeat 1 Yatagarasu", "StageEnemyCheck", [], Has("Progressive Stage (Hard)")),
-	LocationData(438, "Defeat 1 GuyRys", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(439, "Defeat 1 Irystocrat (Legacy)", "StageEnemyCheck", [], Has("Progressive Stage (Hard)")),
-	LocationData(440, "Defeat 1 Bloom & Gloom", "StageEnemyCheck", [], Has("Progressive Stage (Hard)")),
-	LocationData(441, "Defeat 1 Sukonbu", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(442, "Defeat 1 Fubu-chun", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(443, "Defeat 1 Oruyanke", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(444, "Defeat 1 Miteiru", "StageEnemyCheck", [], Has("Progressive Stage (Hard)", 2)),
-	LocationData(445, "Defeat 1 Fubura", "StageEnemyCheck", [], Has("Progressive Stage") | Has("Progressive Stage (Hard)")),
-	LocationData(446, "Defeat 1 Miofa", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(447, "Defeat 1 Koronesuki", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(448, "Defeat 1 Onigiriya", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(449, "Defeat 1 35P", "StageEnemyCheck", [], Has("Progressive Stage", 2)),
-	LocationData(450, "Defeat 1 Kintoki", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(451, "Defeat 1 Mikodanye", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(452, "Defeat 1 Soratomo", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(453, "Defeat 1 Pioneer", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(454, "Defeat 1 Hoshiyomi", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(455, "Defeat 1 Robosa", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(456, "Defeat 1 SSRB", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)")),
-	LocationData(457, "Defeat 1 Staff", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(458, "Defeat 1 A-chan", "StageEnemyCheck", [], Has("Progressive Stage", 2) | Has("Progressive Stage (Hard)", 2)),
-	LocationData(459, "Defeat 1 Harusaki Nodoka", "StageEnemyCheck", [], Has("Progressive Stage (Hard)", 2)),
-	LocationData(460, "Defeat 1 Matsurisu", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(461, "Defeat 1 Haaton", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(462, "Defeat 1 Kapumin", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(463, "Defeat 1 Obake-Chan", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(464, "Defeat 1 Rosetai", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(465, "Defeat 1 Subatomo", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(466, "Defeat 1 Shubangelion", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(467, "Defeat 1 Chocomate", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(468, "Defeat 1 Chocolat", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(469, "Defeat 1 Aquacrew", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(470, "Defeat 1 Shiokko", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(471, "Defeat 1 Nakirigumi", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(472, "Defeat 1 Poyoyo", "StageEnemyCheck", [], Has("Progressive Stage", 3)),
-	LocationData(473, "Defeat 1 Spiderchama", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 3)),
-	LocationData(474, "Defeat 1 Halloween Myth", "StageEnemyCheck", [], Has("Progressive Stage (Hard)", 3)),
-	LocationData(475, "Defeat 1 Moonafic", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(476, "Defeat 1 Moonabito", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(477, "Defeat 1 Risuner", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(478, "Defeat 1 Riscot", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(479, "Defeat 1 Ioforia", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(480, "Defeat 1 Zomrade", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(481, "Defeat 1 Udin", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(482, "Defeat 1 Merakyat", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(483, "Defeat 1 Melfriend", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(484, "Defeat 1 Kobokerz", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(485, "Defeat 1 Cilus", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(486, "Defeat 1 Zecretary", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(487, "Defeat 1 Bazo", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(488, "Defeat 1 Pemaloe", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(489, "Defeat 1 Area 15", "StageEnemyCheck", [], Has("Progressive Stage", 4) | Has("Progressive Stage (Hard)", 4)),
-	LocationData(490, "Defeat 1 Nousagi", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(491, "Defeat 1 Houshou no Ichimin", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(492, "Defeat 1 Elfriend", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(493, "Defeat 1 Knight's Order of Shirogane", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(494, "Defeat 1 Tatsunoko", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(495, "Defeat 1 Heimin", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(496, "Defeat 1 Upao", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(497, "Defeat 1 Watamate", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(498, "Defeat 1 Tokoyami Kenzoku", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(499, "Defeat 1 LuKnight", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(500, "Defeat 1 Nanoraaa", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(501, "Defeat 1 Pekodam", "StageEnemyCheck", [], Has("Progressive Stage", 5)),
-	LocationData(502, "Defeat 1 GoriEla", "StageEnemyCheck", [], Has("Progressive Stage (Hard)", 4)),
-	LocationData(503, "Defeat 1 Otaku", "StageEnemyCheck", [], Has("Progressive Stage", 3) | Has("Progressive Stage (Hard)", 2)),
+	LocationData(422, "Defeat 1 Chumbud", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(423, "Defeat 1 Chumbud (Q)", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(424, "Defeat 1 Deadbeat", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(425, "Defeat 1 Deadbeat (Q)", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(426, "Defeat 1 Takodachi", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(427, "Defeat 1 KFP", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(428, "Defeat 1 Tea-mate", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(429, "Defeat 1 Cursed Bubba", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(430, "Defeat 1 Smol Ame", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(431, "Defeat 1 Brat", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(432, "Defeat 1 Bae (Halloween)", "StageEnemyCheck", [], stage_rule_requirement(1, True)),
+	LocationData(433, "Defeat 1 Hooman", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(434, "Defeat 1 Sapling", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(435, "Defeat 1 Kronie", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(436, "Defeat 1 Sanalite", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(437, "Defeat 1 Yatagarasu", "StageEnemyCheck", [], stage_rule_requirement(1, True)),
+	LocationData(438, "Defeat 1 GuyRys", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(439, "Defeat 1 Irystocrat (Legacy)", "StageEnemyCheck", [], stage_rule_requirement(1, True)),
+	LocationData(440, "Defeat 1 Bloom & Gloom", "StageEnemyCheck", [], stage_rule_requirement(1, True)),
+	LocationData(441, "Defeat 1 Sukonbu", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(442, "Defeat 1 Fubu-chun", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(443, "Defeat 1 Oruyanke", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(2, True)),
+	LocationData(444, "Defeat 1 Miteiru", "StageEnemyCheck", [], stage_rule_requirement(2, True)),
+	LocationData(445, "Defeat 1 Fubura", "StageEnemyCheck", [], stage_rule_requirement(1, False) | stage_rule_requirement(1, True)),
+	LocationData(446, "Defeat 1 Miofa", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(447, "Defeat 1 Koronesuki", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(448, "Defeat 1 Onigiriya", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(449, "Defeat 1 35P", "StageEnemyCheck", [], stage_rule_requirement(2, False)),
+	LocationData(450, "Defeat 1 Kintoki", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(451, "Defeat 1 Mikodanye", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(452, "Defeat 1 Soratomo", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(453, "Defeat 1 Pioneer", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(454, "Defeat 1 Hoshiyomi", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(455, "Defeat 1 Robosa", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(456, "Defeat 1 SSRB", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(1, True)),
+	LocationData(457, "Defeat 1 Staff", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(458, "Defeat 1 A-chan", "StageEnemyCheck", [], stage_rule_requirement(2, False) | stage_rule_requirement(2, True)),
+	LocationData(459, "Defeat 1 Harusaki Nodoka", "StageEnemyCheck", [], stage_rule_requirement(2, True)),
+	LocationData(460, "Defeat 1 Matsurisu", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(461, "Defeat 1 Haaton", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(462, "Defeat 1 Kapumin", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(463, "Defeat 1 Obake-Chan", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(464, "Defeat 1 Rosetai", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(465, "Defeat 1 Subatomo", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(466, "Defeat 1 Shubangelion", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(467, "Defeat 1 Chocomate", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(468, "Defeat 1 Chocolat", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(469, "Defeat 1 Aquacrew", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(470, "Defeat 1 Shiokko", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(471, "Defeat 1 Nakirigumi", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(472, "Defeat 1 Poyoyo", "StageEnemyCheck", [], stage_rule_requirement(3, False)),
+	LocationData(473, "Defeat 1 Spiderchama", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(3, True)),
+	LocationData(474, "Defeat 1 Halloween Myth", "StageEnemyCheck", [], stage_rule_requirement(3, True)),
+	LocationData(475, "Defeat 1 Moonafic", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(476, "Defeat 1 Moonabito", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(477, "Defeat 1 Risuner", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(478, "Defeat 1 Riscot", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(479, "Defeat 1 Ioforia", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(480, "Defeat 1 Zomrade", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(481, "Defeat 1 Udin", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(482, "Defeat 1 Merakyat", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(483, "Defeat 1 Melfriend", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(484, "Defeat 1 Kobokerz", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(485, "Defeat 1 Cilus", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(486, "Defeat 1 Zecretary", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(487, "Defeat 1 Bazo", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(488, "Defeat 1 Pemaloe", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(489, "Defeat 1 Area 15", "StageEnemyCheck", [], stage_rule_requirement(4, False) | stage_rule_requirement(4, True)),
+	LocationData(490, "Defeat 1 Nousagi", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(491, "Defeat 1 Houshou no Ichimin", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(492, "Defeat 1 Elfriend", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(493, "Defeat 1 Knight's Order of Shirogane", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(494, "Defeat 1 Tatsunoko", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(495, "Defeat 1 Heimin", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(496, "Defeat 1 Upao", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(497, "Defeat 1 Watamate", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(498, "Defeat 1 Tokoyami Kenzoku", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(499, "Defeat 1 LuKnight", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(500, "Defeat 1 Nanoraaa", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(501, "Defeat 1 Pekodam", "StageEnemyCheck", [], stage_rule_requirement(5, False)),
+	LocationData(502, "Defeat 1 GoriEla", "StageEnemyCheck", [], stage_rule_requirement(4, True)),
+	LocationData(503, "Defeat 1 Otaku", "StageEnemyCheck", [], stage_rule_requirement(3, False) | stage_rule_requirement(2, True)),
 ]
-
 
 # Each Location instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Location class and override the "game" field.
@@ -543,28 +550,16 @@ def create_all_locations(world: HoloCureWorld) -> None:
 	create_regular_locations(world)
 	create_events(world)
 
+def add_locations(world: HoloCureWorld, current_region: Region, current_locations: Mapping[str, int | None]) -> None:
+	current_region.add_locations(current_locations, HoloCureLocation)
+	[current_region.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in current_locations.items() if location_id >= 1 and location_id <= 201]
+	for location_name, location_id in current_locations.items():
+		world.location_data_is_enabled[location_id] = True
 
-def create_regular_locations(world: HoloCureWorld) -> None:
+def add_all_locations(world: HoloCureWorld, valid_locations: list[int]) -> None:
 	from .rules import is_stage_enabled, is_holo_house_enabled, is_in_hololive_member_list
-	# Finally, we need to put the Locations ("checks") into their regions.
-	# Once again, before we do anything, we can grab our regions we created by using world.get_region()
 	menu = world.get_region("Menu")
-	stage = world.get_region("Stage")
-	stage_enemy_check = world.get_region("StageEnemyCheck")
-	holo_house = world.get_region("HoloHouse")
-	grindy_stage = world.get_region("Grindy Stage")
-	grindy_holo_house = world.get_region("Grindy HoloHouse")
 	shop = world.get_region("Shop")
-	stage1 = world.get_region("Stage 1")
-	stage2 = world.get_region("Stage 2")
-	stage3 = world.get_region("Stage 3")
-	stage4 = world.get_region("Stage 4")
-	stage5 = world.get_region("Stage 5")
-	stage1_hard = world.get_region("Stage 1 (Hard)")
-	stage2_hard = world.get_region("Stage 2 (Hard)")
-	stage3_hard = world.get_region("Stage 3 (Hard)")
-	stage4_hard = world.get_region("Stage 4 (Hard)")
-	timemode = world.get_region("Time Mode")
 
 	menu_locations = {}
 	stage_locations = {}
@@ -584,99 +579,163 @@ def create_regular_locations(world: HoloCureWorld) -> None:
 	stage4_hard_locations = {}
 	timemode_locations = {}
 
+	for cur_count in valid_locations:
+		cur_location_data = location_data[cur_count - 1]
+		cur_location_name = cur_location_data.location_name
+		if cur_location_data.region_name == "Menu":
+			menu_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage":
+			stage_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "StageEnemyCheck":
+			stage_enemy_check_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "HoloHouse":
+			holo_house_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Grindy Stage":
+			grindy_stage_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Grindy HoloHouse":
+			grindy_holo_house_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Shop":
+			shop_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 1":
+			stage1_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 2":
+			stage2_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 3":
+			stage3_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 4":
+			stage4_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 5":
+			stage5_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 1 (Hard)":
+			stage1_hard_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 2 (Hard)":
+			stage2_hard_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 3 (Hard)":
+			stage3_hard_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Stage 4 (Hard)":
+			stage4_hard_locations[cur_location_name] = cur_location_data.location_id
+		elif cur_location_data.region_name == "Time Mode":
+			timemode_locations[cur_location_name] = cur_location_data.location_id
+
+	
+	if is_stage_enabled(world):
+		stage = world.get_region("Stage")
+		stage1 = world.get_region("Stage 1")
+		stage2 = world.get_region("Stage 2")
+		stage3 = world.get_region("Stage 3")
+		stage4 = world.get_region("Stage 4")
+		stage5 = world.get_region("Stage 5")
+		stage1_hard = world.get_region("Stage 1 (Hard)")
+		stage2_hard = world.get_region("Stage 2 (Hard)")
+		stage3_hard = world.get_region("Stage 3 (Hard)")
+		stage4_hard = world.get_region("Stage 4 (Hard)")
+		timemode = world.get_region("Time Mode")
+		add_locations(world, stage, stage_locations)
+		add_locations(world, stage1, stage1_locations)
+		add_locations(world, stage2, stage2_locations)
+		add_locations(world, stage3, stage3_locations)
+		add_locations(world, stage4, stage4_locations)
+		add_locations(world, stage5, stage5_locations)
+		add_locations(world, stage1_hard, stage1_hard_locations)
+		add_locations(world, stage2_hard, stage2_hard_locations)
+		add_locations(world, stage3_hard, stage3_hard_locations)
+		add_locations(world, stage4_hard, stage4_hard_locations)
+		add_locations(world, timemode, timemode_locations)
+		if world.options.grindy_checks:
+			grindy_stage = world.get_region("Grindy Stage")
+			add_locations(world, stage, grindy_stage_locations)
+		if world.options.enable_unique_enemy_checks:
+			stage_enemy_check = world.get_region("StageEnemyCheck")
+			add_locations(world, stage_enemy_check, stage_enemy_check_locations)
+
+	add_locations(world, menu, menu_locations)
+	if is_holo_house_enabled(world):
+		holo_house = world.get_region("HoloHouse")
+		add_locations(world, holo_house, holo_house_locations)
+		if world.options.grindy_checks:
+			grindy_holo_house = world.get_region("Grindy HoloHouse")
+			add_locations(world, grindy_holo_house, grindy_holo_house_locations)
+	add_locations(world, shop, shop_locations)
+
+def create_regular_locations(world: HoloCureWorld) -> None:
+	from .rules import is_stage_enabled, is_holo_house_enabled, is_in_hololive_member_list
+	# Finally, we need to put the Locations ("checks") into their regions.
+	# Once again, before we do anything, we can grab our regions we created by using world.get_region()
+
 	for cur_location_data in location_data:
 		if not is_in_hololive_member_list(world, cur_location_data.character_name_list):
 			continue
-		for cur_count in range(cur_location_data.count):
-			if cur_location_data.count == 1:
-				cur_location_name = cur_location_data.location_name
-			else:
-				cur_location_name = cur_location_data.location_name + " " + str(cur_count + 1)
-			if cur_location_data.region_name == "Menu":
-				menu_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "Stage":
-				stage_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "StageEnemyCheck":
-				stage_enemy_check_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "HoloHouse":
-				holo_house_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "Grindy Stage":
-				grindy_stage_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "Grindy HoloHouse":
-				grindy_holo_house_locations[cur_location_name] = cur_location_data.location_id + cur_count
-			elif cur_location_data.region_name == "Shop":
-				shop_locations[cur_location_name] = cur_location_data.location_id + cur_count
+		if not is_stage_enabled(world):
+			if cur_location_data.region_name == "Stage":
+				continue
 			elif cur_location_data.region_name == "Stage 1":
-				stage1_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 2":
-				stage2_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 3":
-				stage3_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 4":
-				stage4_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 5":
-				stage5_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 1 (Hard)":
-				stage1_hard_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 2 (Hard)":
-				stage2_hard_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 3 (Hard)":
-				stage3_hard_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Stage 4 (Hard)":
-				stage4_hard_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
 			elif cur_location_data.region_name == "Time Mode":
-				timemode_locations[cur_location_name] = cur_location_data.location_id + cur_count
+				continue
+		if (not is_stage_enabled(world) or not world.options.grindy_checks) and cur_location_data.region_name == "Grindy Stage":
+			continue
+		if (not is_stage_enabled(world) or not world.options.enable_unique_enemy_checks) and cur_location_data.region_name == "StageEnemyCheck":
+			continue
+		if not is_holo_house_enabled(world):
+			if cur_location_data.region_name == "HoloHouse":
+				continue
+		if (not is_holo_house_enabled(world) or not world.options.grindy_checks) and cur_location_data.region_name == "Grindy HoloHouse":
+			continue
 
-	if is_stage_enabled(world):
-		stage.add_locations(stage_locations, HoloCureLocation)
-		[stage.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage_locations.items() if location_id >= 1 and location_id <= 201]
-		stage1.add_locations(stage1_locations, HoloCureLocation)
-		[stage1.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage1_locations.items() if location_id >= 1 and location_id <= 201]
-		stage2.add_locations(stage2_locations, HoloCureLocation)
-		[stage2.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage2_locations.items() if location_id >= 1 and location_id <= 201]
-		stage3.add_locations(stage3_locations, HoloCureLocation)
-		[stage3.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage3_locations.items() if location_id >= 1 and location_id <= 201]
-		stage4.add_locations(stage4_locations, HoloCureLocation)
-		[stage4.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage4_locations.items() if location_id >= 1 and location_id <= 201]
-		stage5.add_locations(stage5_locations, HoloCureLocation)
-		[stage5.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage5_locations.items() if location_id >= 1 and location_id <= 201]
-		stage1_hard.add_locations(stage1_hard_locations, HoloCureLocation)
-		[stage1_hard.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage1_hard_locations.items() if location_id >= 1 and location_id <= 201]
-		stage2_hard.add_locations(stage2_hard_locations, HoloCureLocation)
-		[stage2_hard.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage2_hard_locations.items() if location_id >= 1 and location_id <= 201]
-		stage3_hard.add_locations(stage3_hard_locations, HoloCureLocation)
-		[stage3_hard.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage3_hard_locations.items() if location_id >= 1 and location_id <= 201]
-		stage4_hard.add_locations(stage4_hard_locations, HoloCureLocation)
-		[stage4_hard.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage4_hard_locations.items() if location_id >= 1 and location_id <= 201]
-		timemode.add_locations(timemode_locations, HoloCureLocation)
-		[timemode.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in timemode_locations.items() if location_id >= 1 and location_id <= 201]
-		if world.options.grindy_checks:
-			stage.add_locations(grindy_stage_locations, HoloCureLocation)
-			[stage.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in grindy_stage_locations.items() if location_id >= 1 and location_id <= 201]
-		if world.options.enable_unique_enemy_checks:
-			stage_enemy_check.add_locations(stage_enemy_check_locations, HoloCureLocation)
-			[stage_enemy_check.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in stage_enemy_check_locations.items() if location_id >= 1 and location_id <= 201]
+		if cur_location_data.location_id >= 1 and cur_location_data.location_id <= 201:
+			if not getattr(world.multiworld, "generation_is_fake", False):
+				world.achievement_locations.append(cur_location_data.location_id)
+		else:
+			world.valid_locations.append(cur_location_data.location_id)
 
-	menu.add_locations(menu_locations, HoloCureLocation)
-	[menu.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in menu_locations.items() if location_id >= 1 and location_id <= 201]
-	if is_holo_house_enabled(world):
-		holo_house.add_locations(holo_house_locations, HoloCureLocation)
-		[holo_house.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in holo_house_locations.items() if location_id >= 1 and location_id <= 201]
-		if world.options.grindy_checks:
-			holo_house.add_locations(grindy_holo_house_locations, HoloCureLocation)
-			[holo_house.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in grindy_holo_house_locations.items() if location_id >= 1 and location_id <= 201]
-	shop.add_locations(shop_locations, HoloCureLocation)
-	[shop.add_event("Achievement " + str(location_id), "Achievement Count", CanReachLocation(location_name), HoloCureLocation, HoloCureItem) for location_name, location_id in shop_locations.items() if location_id >= 1 and location_id <= 201]
+	if not getattr(world.multiworld, "generation_is_fake", False):
+		goal_locations = []
+		if world.options.end_goal == EndGoal.option_stage_member:
+			[goal_locations.append(cur_location) for cur_location in world.achievement_locations if "Clear a Stage with " in location_data[cur_location - 1].location_name]
+			goal_locations = world.random.sample(goal_locations, min(len(goal_locations), world.options.hololive_member_goal.value))
+			[world.achievement_locations.remove(cur_location) for cur_location in goal_locations]
+		elif world.options.end_goal == EndGoal.option_stage:
+			[goal_locations.append(cur_location) for cur_location in world.achievement_locations if "Defeat the Boss of Stage" in location_data[cur_location - 1].location_name and not "(Hard)" in location_data[cur_location - 1].location_name]
+			[world.achievement_locations.remove(cur_location) for cur_location in goal_locations]
+		elif world.options.end_goal == EndGoal.option_stage_hard:
+			[goal_locations.append(cur_location) for cur_location in world.achievement_locations if "Defeat the Boss of Stage" in location_data[cur_location - 1].location_name and "(Hard)" in location_data[cur_location - 1].location_name]
+			[world.achievement_locations.remove(cur_location) for cur_location in goal_locations]
+			
+		world.achievement_locations = world.random.sample(world.achievement_locations, max(0, min(len(world.achievement_locations), world.options.achievement_count - len(goal_locations))))
+		world.achievement_locations += goal_locations
+		if world.options.end_goal == EndGoal.option_achievement and len(world.achievement_locations) < world.options.achievement_goal:
+			logger = logging.getLogger()
+			logger.warning("There are fewer valid achievements than the goal which causes an impossible apworld. Lowering goal")
+			world.options.achievement_goal.value = len(world.achievement_locations)
+
+	world.valid_locations += world.achievement_locations
+	
+	add_all_locations(world, world.valid_locations)
 
 
 def create_events(world: HoloCureWorld) -> None:
 	from .rules import is_stage_enabled, is_in_hololive_member_list
-	stage = world.get_region("Stage")
 	if is_stage_enabled(world):
-		char_name_list = ["Amelia Watson", "Gawr Gura", "Ninomae Inanis", "Takanashi Kiara", "Mori Calliope", "Hakos Baelz", "Ouro Kronii", "Ceres Fauna", "Nanashi Mumei", "Tsukumo Sana", "IRyS", "Shirakami Fubuki", "Ookami Mio", "Nekomata Okayu", "Inugami Korone", "Tokino Sora", "AZki", "Roboco-san", "Hoshimachi Suisei", "Sakura Miko", "Akai Haato", "Yozora Mel", "Natsuiro Matsuri", "Aki Rosenthal", "Yuzuki Choco", "Oozora Subaru", "Murasaki Shion", "Nakiri Ayame", "Minato Aqua", "Moona Hoshinova", "Airani Iofifteen", "Ayunda Risu", "Kureiji Ollie", "Pavolia Reine", "Anya Melfissa", "Kobo Kanaeru", "Kaela Kovalskia", "Vestia Zeta", "Usada Pekora", "Shirogane Noel", "Shiranui Flare", "Houshou Marine", "Kiryu Coco", "Amane Kanata", "Tsunomaki Watame", "Tokoyami Towa", "Himemori Luna"]
-		for cur_name in char_name_list:
-			if is_in_hololive_member_list(world, [cur_name]):
-				stage.add_event(cur_name + " Stage", "Clear Stage Count", CanReachLocation("Clear a Stage with " + cur_name), HoloCureLocation, HoloCureItem)
+		stage = world.get_region("Stage")
+		for cur_location_id in world.valid_locations:
+			if cur_location_id >= 1 and cur_location_id <= 201 and "Clear a Stage with " in location_data[cur_location_id - 1].location_name:
+				stage.add_event(location_data[cur_location_id - 1].character_name_list[0] + " Stage", "Clear Stage Count", CanReachLocation(location_data[cur_location_id - 1].location_name), HoloCureLocation, HoloCureItem)
 
 	# Sometimes, the player may perform in-game actions that allow them to progress which are not related to Items.
 	# In our case, the player must press a button in the top left room to open the final boss door.

@@ -47,3 +47,8 @@ void DsMapFindValueBefore(RValue& Result, CInstance* Self, CInstance* Other, int
 		}
 	}
 }
+
+void ShowDebugMessageBefore(RValue& Result, CInstance* Self, CInstance* Other, int numArgs, RValue* Args)
+{
+	callbackManagerInterfacePtr->CancelOriginalFunction();
+}
