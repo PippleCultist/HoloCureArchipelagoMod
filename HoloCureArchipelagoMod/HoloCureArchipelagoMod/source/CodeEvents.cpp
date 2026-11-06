@@ -198,7 +198,16 @@ void InputManagerStepBefore(std::tuple<CInstance*, CInstance*, CCode*, int, RVal
 						{
 							loggingCallback(std::format("Loading save {}", apSaveName));
 							isLoadingAPSave = true;
-							origLoadPlayerSaveScript(Self, nullptr, result, 0, nullptr);
+							RValue attackController = g_ModuleInterface->CallBuiltin("instance_find", { objAttackControllerIndex, 0 });
+							if (attackController.IsUndefined())
+							{
+								// TODO: Figure out why this isn't working
+								origInitialPlayerSaveLoadScript(Self, nullptr, result, 0, nullptr);
+							}
+							else
+							{
+								origLoadPlayerSaveScript(Self, nullptr, result, 0, nullptr);
+							}
 							isLoadingAPSave = false;
 						}
 						else

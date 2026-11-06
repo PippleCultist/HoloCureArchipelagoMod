@@ -29,6 +29,7 @@ PFUNC_YYGMLScript origNewDSMapMapSecureLoadScript = nullptr;
 PFUNC_YYGMLScript origSavePlayerSaveScript = nullptr;
 PFUNC_YYGMLScript origLevelPlayerStatUpScript = nullptr;
 PFUNC_YYGMLScript origLoadPlayerSaveScript = nullptr;
+PFUNC_YYGMLScript origInitialPlayerSaveLoadScript = nullptr;
 
 CInstance* globalInstance = nullptr;
 
@@ -125,7 +126,7 @@ void initHooks()
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_new_ds_map_secure_load");
 		return;
 	}
-	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_InitialPlayerSaveLoad", InitialPlayerSaveLoadBefore, InitialPlayerSaveLoadAfter, nullptr)))
+	if (!AurieSuccess(callbackManagerInterfacePtr->RegisterScriptFunctionCallback(MODNAME, "gml_Script_InitialPlayerSaveLoad", InitialPlayerSaveLoadBefore, InitialPlayerSaveLoadAfter, &origInitialPlayerSaveLoadScript)))
 	{
 		DbgPrintEx(LOG_SEVERITY_ERROR, "Failed to register callback for %s", "gml_Script_InitialPlayerSaveLoad");
 		return;

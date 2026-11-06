@@ -285,7 +285,7 @@ RValue& ConfirmCookingPotCreateBefore(CInstance* Self, CInstance* Other, RValue&
 				g_ModuleInterface->CallBuiltin("ds_map_set", { playerSave, cookingName.c_str(), newCount });
 				if (newCount >= 10)
 				{
-					sendAPCheck(Self, itemNameToLocationMap[cookingName]);
+					sendAPCheck(Self, itemNameToLocationMap[optionID.ToString()]);
 				}
 			}
 		}

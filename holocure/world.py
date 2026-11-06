@@ -105,27 +105,27 @@ class HoloCureWorld(World):
 
 		logger = logging.getLogger()
 		if not self.options.enable_holo_house_randomization and not self.options.enable_stage:
-			logger.warning("HoloHouse and Stage are both disabled which causes an impossible apworld. Enabling Stage to fix this")
+			logger.warning("HoloHouse and Stage are both disabled which causes an impossible generation. Enabling Stage to fix this")
 			self.options.enable_stage.value = True
 
 		if (self.options.end_goal == EndGoal.option_stage or self.options.end_goal == EndGoal.option_stage_hard) and not self.options.enable_stage:
-			logger.warning("Stage is disabled with clearing Stage as the goal which causes an impossible apworld. Enabling Stage to fix this")
+			logger.warning("Stage is disabled with clearing Stage as the goal which causes an impossible generation. Enabling Stage to fix this")
 			self.options.enable_stage.value = True
 
 		if len(self.options.hololive_member_exclude_list.value) == 47:
-			logger.warning("Exclude list contains every hololive member which causes an impossible apworld. Disabling exclude list")
+			logger.warning("Exclude list contains every hololive member which causes an impossible generation. Disabling exclude list")
 			self.options.hololive_member_exclude_list.value = []
 
 		if self.options.end_goal == EndGoal.option_stage_member:
 			if self.options.item_pool_hololive_member_count < self.options.hololive_member_goal:
-				logger.warning("Item pool contains fewer hololive members than the goal which causes an impossible apworld. Lowering goal")
+				logger.warning("Item pool contains fewer hololive members than the goal which causes an impossible generation. Lowering goal")
 				self.options.hololive_member_goal.value = self.options.item_pool_hololive_member_count.value
 			if 47 - len(self.options.hololive_member_exclude_list.value) < self.options.hololive_member_goal:
-				logger.warning("Exclude list causes fewer hololive members than the goal which causes an impossible apworld. Lowering goal")
+				logger.warning("Exclude list causes fewer hololive members than the goal which causes an impossible generation. Lowering goal")
 				self.options.hololive_member_goal.value = 47 - len(self.options.hololive_member_exclude_list.value)
 
 		if self.options.end_goal == EndGoal.option_achievement and self.options.achievement_count < self.options.achievement_goal:
-			logger.warning("There are fewer achievements than the goal which causes an impossible apworld. Lowering goal")
+			logger.warning("There are fewer achievements than the goal which causes an impossible generation. Lowering goal")
 			self.options.achievement_goal.value = self.options.achievement_count.value
 
 		if not getattr(self.multiworld, "generation_is_fake", False):
