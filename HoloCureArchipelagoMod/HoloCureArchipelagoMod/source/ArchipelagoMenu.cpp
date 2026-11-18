@@ -328,6 +328,7 @@ void sendAPCheck(CInstance* Self, locationIndexEnum sendLocationIndex)
 	{
 		return;
 	}
+	loggingCallback(std::format("Sending location {}", static_cast<int>(sendLocationIndex)));
 	AP_SendItem(sendLocationIndex);
 }
 

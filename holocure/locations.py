@@ -177,7 +177,7 @@ location_data = [
 	LocationData(140, "Enhance a weapon once", "Stage", [], Has("Credit Card")),
 	LocationData(141, "Defeat a Yagoo", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
 	LocationData(142, "Defeat a Golden Yagoo", "Stage", [], Has("Haste Up Progressive Shop Upgrade", 4)),
-	LocationData(143, "Defeat a Silver Yagoo", "Stage", [], Has("Haste Up Progressive Shop Upgrade", 2)),
+	LocationData(143, "Defeat a Silver Yagoo", "Stage", [], Has("Haste Up Progressive Shop Upgrade", 2) & Has("Stamps Shop Upgrade")),
 	LocationData(144, "Be defeated by a Yagoo", "Stage", [], And(Has("ATK Progressive Shop Upgrade", 8), Has("Gorilla's Paw"), Has("EXP Gain Up Progressive Shop Upgrade", 3), Has("Marketing Up Progressive Shop Upgrade", 3))),
 	LocationData(145, "Open a Super Box", "Stage", [], stage_rule_requirement(4, True)),
 	LocationData(146, "Drop a super item", "Stage", [], stage_rule_requirement(4, True)),

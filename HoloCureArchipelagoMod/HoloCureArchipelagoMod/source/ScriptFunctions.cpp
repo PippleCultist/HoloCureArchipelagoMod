@@ -97,6 +97,7 @@ RValue& newDSMapSecureSaveBefore(CInstance* Self, CInstance* Other, RValue& Retu
 	{
 		if (!hasLoadedSave)
 		{
+			callbackManagerInterfacePtr->CancelOriginalFunction();
 			return ReturnValue;
 		}
 		RValue** args = new RValue*[2];
